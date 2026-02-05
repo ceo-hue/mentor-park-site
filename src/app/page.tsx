@@ -230,16 +230,23 @@ function ProofSection() {
           </p>
         </div>
 
-        {/* Core Network 카드 */}
+        {/* 멘토 및 평가위원 풀 등록 현황 카드 */}
         <div className="bento-card md:col-span-4 bg-[#0a0a0a] p-8 md:p-10 rounded-[30px] md:rounded-[40px] text-white flex flex-col justify-between min-h-[240px]">
           <h4 className="text-xl md:text-2xl font-bold italic mb-4 md:mb-6">
-            Core Network
+            멘토 및 평가위원
+            <br />
+            <span className="text-sm font-normal not-italic text-gray-500">
+              풀 등록 현황
+            </span>
           </h4>
           <ul className="space-y-2 md:space-y-3 text-gray-400 text-sm md:text-base">
-            <li>창업진흥원 평가위원 풀</li>
-            <li>경기콘텐츠진흥원 심의위원</li>
-            <li>성남산업진흥원 전문위원</li>
-            <li>서울지식재산센터 대면평가</li>
+            <li>창업진흥원 평가위원 풀 등록 <span className="text-gray-600">2023~현재</span></li>
+            <li>경기콘텐츠진흥원 평가·심의위원 풀 등록 <span className="text-gray-600">2024~현재</span></li>
+            <li>경기콘텐츠진흥원 문화창업플래너 풀 등록 <span className="text-gray-600">2019~현재</span></li>
+            <li>성남산업진흥원 창업전문위원 풀 등록 <span className="text-gray-600">2023~현재</span></li>
+            <li>창업진흥원 예비창업패키지 전담멘토 풀 등록 <span className="text-gray-600">2019~2023</span></li>
+            <li>한성대학교 창업멘토 풀 등록 <span className="text-gray-600">2021~2022</span></li>
+            <li>동국대학교 창업전문기업 풀 등록 <span className="text-gray-600">2023~2025</span></li>
           </ul>
         </div>
 
@@ -271,25 +278,33 @@ function VideoInsightSection() {
     id: string;
     title: string;
     provider: string;
+    type: "youtube" | "external";
+    url: string;
   } | null>(null);
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
 
   const videos = [
     {
-      id: "dElglevKkdA",
-      title: "사업계획서의 정석",
-      provider: "창업진흥원",
+      id: "dEIglevKkdA",
+      title: "예시로 알아보는 사업계획서",
+      provider: "K-스타트업, 창업에듀 · 2021년 14차시",
+      type: "youtube" as const,
+      url: "https://www.youtube.com/watch?v=dEIglevKkdA&t=1151s",
     },
     {
       id: "seoulsbdc",
-      title: "항목별 키포인트 가이드",
-      provider: "서울시 자영업지원센터",
+      title: "항목별 키포인트로 술술쓰는 사업계획서",
+      provider: "서울시 자영업지원센터 · 2023년",
+      type: "external" as const,
+      url: "https://www.seoulsbdc.or.kr/main.do",
     },
     {
-      id: "K-STARTUP",
-      title: "스타트업 IR 피칭 전략",
-      provider: "K-STARTUP",
+      id: "gmr",
+      title: "예비창업자를 위한 사업계획서 핵심 가이드",
+      provider: "경기도 자영업 아카데미 · 2023년",
+      type: "external" as const,
+      url: "https://edu.gmr.or.kr/onlineCos/contentsPreview/1823",
     },
   ];
 
@@ -327,7 +342,13 @@ function VideoInsightSection() {
             animate={isInView ? "visible" : "hidden"}
             custom={i + 2}
             layoutId={vid.id}
-            onClick={() => setSelectedVideo(vid)}
+            onClick={() => {
+              if (vid.type === "external") {
+                window.open(vid.url, "_blank", "noopener,noreferrer");
+              } else {
+                setSelectedVideo(vid);
+              }
+            }}
             className="cursor-pointer overflow-hidden rounded-2xl md:rounded-3xl bg-gray-200 aspect-video relative group"
           >
             {/* YouTube 썸네일 */}
@@ -341,10 +362,10 @@ function VideoInsightSection() {
             />
             <div className="absolute inset-0 bg-black/30 group-hover:bg-black/50 transition-colors" />
 
-            {/* 재생 버튼 */}
+            {/* 재생/링크 버튼 */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
               <span className="bg-white text-black px-5 py-2.5 md:px-6 md:py-3 rounded-full font-bold text-sm md:text-base">
-                PLAY INSIGHT
+                {vid.type === "youtube" ? "PLAY INSIGHT" : "VIEW INSIGHT ↗"}
               </span>
             </div>
 
@@ -377,7 +398,7 @@ function VideoInsightSection() {
               onClick={(e) => e.stopPropagation()}
             >
               <iframe
-                src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1`}
+                src={`https://www.youtube.com/embed/${selectedVideo.id}?autoplay=1&start=1151`}
                 className="w-full h-full"
                 allow="autoplay; encrypted-media"
                 allowFullScreen
@@ -385,6 +406,172 @@ function VideoInsightSection() {
               <button
                 onClick={() => setSelectedVideo(null)}
                 className="absolute top-4 right-4 md:top-6 md:right-6 text-white text-base md:text-xl font-light hover:opacity-70 transition-opacity cursor-pointer"
+              >
+                CLOSE &times;
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </section>
+  );
+}
+
+/* ── Mentoring Gallery Section ── */
+function GallerySection() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const [selectedImg, setSelectedImg] = useState<{
+    src: string;
+    alt: string;
+  } | null>(null);
+
+  const CLOUD_NAME = "dhohspefk";
+
+  // Cloudinary 사진 목록 — 업로드 후 파일명만 교체하면 됩니다
+  const galleryImages = [
+    { file: "sample1", alt: "멘토링 현장 1" },
+    { file: "sample2", alt: "멘토링 현장 2" },
+    { file: "sample3", alt: "멘토링 현장 3" },
+    { file: "sample4", alt: "멘토링 현장 4" },
+    { file: "sample5", alt: "멘토링 현장 5" },
+    { file: "sample6", alt: "멘토링 현장 6" },
+    { file: "sample7", alt: "멘토링 현장 7" },
+    { file: "sample8", alt: "멘토링 현장 8" },
+  ];
+
+  const getCloudinaryUrl = (file: string, width: number) =>
+    `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_${width},q_auto,f_auto/gallery/${file}`;
+
+  // 자동 스크롤용 이미지 (2배로 반복해서 끊김 없이)
+  const scrollImages = [...galleryImages, ...galleryImages];
+
+  return (
+    <section
+      id="gallery"
+      ref={ref}
+      className="py-20 md:py-32 lg:py-40 bg-white text-black overflow-hidden"
+    >
+      {/* 섹션 헤더 */}
+      <div className="px-6 md:px-10 lg:px-24">
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          custom={0}
+          className="text-sm font-mono text-gray-400 tracking-widest uppercase mb-4"
+        >
+          Mentoring Gallery
+        </motion.p>
+        <motion.h2
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          custom={1}
+          className="text-3xl md:text-4xl lg:text-6xl font-bold mb-4 tracking-tighter"
+        >
+          현장의 기록
+        </motion.h2>
+        <motion.p
+          variants={fadeUp}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          custom={2}
+          className="text-gray-400 text-sm md:text-base mb-10 md:mb-16"
+        >
+          멘토링, 강연, 평가 현장에서 함께한 순간들
+        </motion.p>
+      </div>
+
+      {/* 자동 스크롤 갤러리 */}
+      <motion.div
+        variants={fadeUp}
+        initial="hidden"
+        animate={isInView ? "visible" : "hidden"}
+        custom={3}
+        className="mb-12 md:mb-20"
+      >
+        <div className="flex gap-4 animate-scroll">
+          {scrollImages.map((img, i) => (
+            <div
+              key={`scroll-${i}`}
+              onClick={() =>
+                setSelectedImg({
+                  src: getCloudinaryUrl(img.file, 1200),
+                  alt: img.alt,
+                })
+              }
+              className="flex-shrink-0 w-[280px] md:w-[360px] lg:w-[420px] aspect-[4/3] rounded-2xl overflow-hidden cursor-pointer group"
+            >
+              <img
+                src={getCloudinaryUrl(img.file, 600)}
+                alt={img.alt}
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                loading="lazy"
+              />
+            </div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* 그리드 갤러리 */}
+      <div className="px-6 md:px-10 lg:px-24">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+          {galleryImages.map((img, i) => (
+            <motion.div
+              key={`grid-${img.file}`}
+              variants={fadeUp}
+              initial="hidden"
+              animate={isInView ? "visible" : "hidden"}
+              custom={i * 0.5 + 4}
+              onClick={() =>
+                setSelectedImg({
+                  src: getCloudinaryUrl(img.file, 1200),
+                  alt: img.alt,
+                })
+              }
+              className="aspect-square rounded-xl md:rounded-2xl overflow-hidden cursor-pointer group relative"
+            >
+              <img
+                src={getCloudinaryUrl(img.file, 400)}
+                alt={img.alt}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                loading="lazy"
+              />
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300" />
+            </motion.div>
+          ))}
+        </div>
+      </div>
+
+      {/* 이미지 확대 모달 */}
+      <AnimatePresence>
+        {selectedImg && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 md:p-10"
+            onClick={() => setSelectedImg(null)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="relative max-w-5xl max-h-[85vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={selectedImg.src}
+                alt={selectedImg.alt}
+                className="w-full h-full object-contain rounded-2xl"
+              />
+              <p className="text-white/70 text-sm text-center mt-4">
+                {selectedImg.alt}
+              </p>
+              <button
+                onClick={() => setSelectedImg(null)}
+                className="absolute top-4 right-4 text-white text-xl font-light hover:opacity-70 transition-opacity cursor-pointer"
               >
                 CLOSE &times;
               </button>
@@ -588,6 +775,7 @@ export default function Home() {
       <HeroSection />
       <ProofSection />
       <VideoInsightSection />
+      <GallerySection />
       <ExpertiseSection />
       <ProcessSection />
       <ContactSection />
