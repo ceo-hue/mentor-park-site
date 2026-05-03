@@ -20,14 +20,14 @@ export const serviceFunctions = {
     ],
   },
   ai: {
-    title: "AI Mind Design (ARHA)",
+    title: "Project ARHA",
     mainLabel: "CORE RESEARCH",
-    desc: "인간의 통찰과 AI의 효율이 결합된 지능형 시스템 연구",
+    desc: "AI의 '마음'을 설계하는 지능형 아키텍처 연구",
     features: [
-      "ARHA(AI Mind Design) 기반의 의사결정 체계",
-      "본질 중심의 AI 워크플로우 최적화",
-      "감정과 논리가 공존하는 프롬프트 엔지니어링",
-      "미래형 지능형 에이전트 인터페이스 연구",
+      "ARHA(Autonomous Resonance & Harmonic Architecture) 설계",
+      "감정-인지 런타임 기반의 지능형 에이전트 구축",
+      "비즈니스 아이덴티티가 투영된 프롬프트 체계 연구",
+      "인간의 통찰과 AI의 효율을 결합하는 시스템 최적화",
     ],
   },
 };
