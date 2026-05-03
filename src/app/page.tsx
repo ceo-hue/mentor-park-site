@@ -5,6 +5,7 @@ import Lenis from "lenis";
 import { Navigation } from "@/components/layout/Navigation";
 import { HeroSection } from "@/components/sections/HeroSection";
 import { IdentitySection } from "@/components/sections/IdentitySection";
+import { FunctionSection } from "@/components/sections/FunctionSection";
 import { ProofSection } from "@/components/sections/ProofSection";
 import { VideoInsightSection } from "@/components/sections/VideoInsightSection";
 import { GallerySection } from "@/components/sections/GallerySection";
@@ -42,11 +43,6 @@ export default function Home() {
       <GallerySection />
       <ExpertiseSection />
       <ProcessSection />
-      <ContactSection />
-    </main>
-  );
-}
-/>
       <ContactSection />
     </main>
   );
