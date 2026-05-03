@@ -5,6 +5,8 @@ import { motion, useInView } from "framer-motion";
 import gsap from "gsap";
 import { fadeUp } from "../../data/animations";
 
+import { careerData } from "../../data/siteData";
+
 export function ProofSection() {
   const ref = useRef<HTMLDivElement>(null);
   const gridRef = useRef<HTMLDivElement>(null);
@@ -19,11 +21,11 @@ export function ProofSection() {
           trigger: gridRef.current,
           start: "top 80%",
         },
-        y: 100,
+        y: 60,
         opacity: 0,
-        duration: 1,
-        stagger: 0.15,
-        ease: "power4.out",
+        duration: 0.8,
+        stagger: 0.1,
+        ease: "power3.out",
       });
     }, gridRef);
 
@@ -33,83 +35,110 @@ export function ProofSection() {
   return (
     <section
       id="proof"
-      className="py-20 md:py-32 lg:py-40 px-6 md:px-10 lg:px-24 bg-white text-black rounded-t-[40px] md:rounded-t-[60px] lg:rounded-t-[100px]"
+      className="py-24 md:py-48 lg:py-64 px-6 md:px-10 lg:px-24 bg-white text-black rounded-t-[60px] md:rounded-t-[100px] lg:rounded-t-[150px]"
     >
-      <div ref={ref}>
-        <motion.h2
+      <div ref={ref} className="max-w-7xl mx-auto">
+        <motion.div
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="text-3xl md:text-4xl lg:text-6xl font-bold mb-12 md:mb-20 tracking-tighter"
+          className="mb-16 md:mb-32"
         >
-          Verified Authority
-        </motion.h2>
-      </div>
-
-      <div
-        ref={gridRef}
-        className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6"
-      >
-        <div className="bento-card md:col-span-8 bg-gray-50 p-8 md:p-10 lg:p-16 rounded-[30px] md:rounded-[40px] flex flex-col justify-between hover:bg-gray-100 transition-colors min-h-[260px] md:min-h-[320px]">
-          <div>
-            <span className="text-[#0057FF] font-bold uppercase tracking-widest text-xs md:text-sm">
-              Current Role
-            </span>
-            <h3 className="text-2xl md:text-3xl lg:text-4xl font-bold mt-3 md:mt-4 leading-tight">
-              한성대학교 캠퍼스타운 사업단
-              <br />
-              기술창업센터 총괄매니저
-            </h3>
-          </div>
-          <p className="text-gray-500 mt-6 md:mt-10 max-w-md text-sm md:text-base">
-            창업 생태계의 구조를 설계하고 예비 창업자의 성장을 가속화하는 시스템
-            매니지먼트.
-          </p>
-        </div>
-
-        <div className="bento-card md:col-span-4 bg-[#0057FF] p-8 md:p-10 rounded-[30px] md:rounded-[40px] text-white flex flex-col justify-center items-center min-h-[200px]">
-          <span className="text-6xl md:text-7xl lg:text-8xl font-black italic">
-            10+
+          <span className="text-[#0057FF] font-mono tracking-[0.4em] uppercase text-xs md:text-sm mb-6 block">
+            Empirical Credibility
           </span>
-          <p className="mt-3 md:mt-4 font-medium opacity-80 text-sm md:text-base">
-            Years of Experience
-          </p>
-        </div>
+          <h2 className="text-4xl md:text-6xl lg:text-8xl font-black tracking-tighter leading-[0.9]">
+            Verified Authority
+          </h2>
+        </motion.div>
 
-        <div className="bento-card md:col-span-4 bg-[#0a0a0a] p-8 md:p-10 rounded-[30px] md:rounded-[40px] text-white flex flex-col justify-between min-h-[240px]">
-          <h4 className="text-xl md:text-2xl font-bold italic mb-4 md:mb-6">
-            멘토 및 평가위원
-            <br />
-            <span className="text-sm font-normal not-italic text-gray-500">
-              풀 등록 현황
-            </span>
-          </h4>
-          <ul className="space-y-2 md:space-y-3 text-gray-400 text-sm md:text-base">
-            <li>창업진흥원 평가위원 풀 등록 <span className="text-gray-600">2023~현재</span></li>
-            <li>경기콘텐츠진흥원 평가·심의위원 풀 등록 <span className="text-gray-600">2024~현재</span></li>
-            <li>경기콘텐츠진흥원 문화창업플래너 풀 등록 <span className="text-gray-600">2019~현재</span></li>
-            <li>성남산업진흥원 창업전문위원 풀 등록 <span className="text-gray-600">2023~현재</span></li>
-            <li>창업진흥원 예비창업패키지 전담멘토 풀 등록 <span className="text-gray-600">2019~2023</span></li>
-            <li>한성대학교 창업멘토 풀 등록 <span className="text-gray-600">2021~2022</span></li>
-            <li>동국대학교 창업전문기업 풀 등록 <span className="text-gray-600">2023~2025</span></li>
-          </ul>
-        </div>
-
-        <div className="bento-card md:col-span-8 bg-gray-50 p-8 md:p-10 lg:p-16 rounded-[30px] md:rounded-[40px] flex flex-col md:flex-row gap-6 md:gap-10 min-h-[220px]">
-          <div className="flex-1">
-            <h4 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">
-              IR 피칭 컨설팅
-            </h4>
-            <p className="text-gray-500 text-sm md:text-base">
-              보이스 트레이닝과 커뮤니케이션 기술을 결합하여 투자자의 마음을
-              움직이는 설득의 구조를 설계합니다.
+        <div
+          ref={gridRef}
+          className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6"
+        >
+          {/* 메인 이력 카드 */}
+          <div className="bento-card md:col-span-8 bg-gray-50 p-10 md:p-16 rounded-[40px] flex flex-col justify-between hover:bg-gray-100 transition-colors min-h-[300px] md:min-h-[400px] border border-gray-100">
+            <div>
+              <span className="text-[#0057FF] font-bold uppercase tracking-widest text-xs md:text-sm">
+                Current Role
+              </span>
+              <h3 className="text-3xl md:text-4xl lg:text-5xl font-black mt-6 leading-[1.1] tracking-tight">
+                {careerData.current.role}
+                <br />
+                <span className="text-[#0057FF]">{careerData.current.title}</span>
+              </h3>
+            </div>
+            <p className="text-gray-500 mt-10 max-w-xl text-lg md:text-xl font-medium leading-relaxed">
+              {careerData.current.desc}
             </p>
           </div>
-          <div className="flex-1 md:border-l md:border-gray-200 md:pl-10 font-mono text-xs md:text-sm text-gray-600 space-y-2">
-            <p>+ 창업에듀 교육영상</p>
-            <p>+ K-STARTUP 본선 멘토</p>
-            <p>+ LG디스플레이 초청강의</p>
+
+          {/* 경험 수치 카드 */}
+          <div className="bento-card md:col-span-4 bg-[#0057FF] p-10 rounded-[40px] text-white flex flex-col justify-center items-center min-h-[300px] group">
+            <div className="text-center">
+              <span className="text-7xl md:text-8xl lg:text-9xl font-black italic tracking-tighter block group-hover:scale-110 transition-transform duration-500">
+                15+
+              </span>
+              <p className="mt-4 font-bold tracking-widest uppercase text-sm md:text-base opacity-80">
+                Years of Excellence
+              </p>
+            </div>
+          </div>
+
+          {/* 상세 지표 그리드 영역 */}
+          <div className="md:col-span-12 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {careerData.stats.map((stat, i) => (
+              <div key={i} className="bento-card bg-gray-50 p-8 md:p-10 rounded-[40px] border border-gray-100 flex flex-col justify-between group">
+                <span className="text-4xl md:text-5xl font-black text-[#0057FF] block group-hover:-translate-y-2 transition-transform duration-300">
+                  {stat.number}
+                </span>
+                <div className="mt-8">
+                  <h4 className="text-lg md:text-xl font-bold mb-2">{stat.label}</h4>
+                  <p className="text-sm text-gray-500">{stat.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* 풀 등록 현황 카드 */}
+          <div className="bento-card md:col-span-5 bg-[#0a0a0a] p-10 md:p-12 rounded-[40px] text-white flex flex-col justify-between min-h-[400px]">
+            <h4 className="text-2xl md:text-3xl font-black italic mb-10 leading-tight">
+              Professional
+              <br />
+              <span className="text-[#0057FF]">Registrations</span>
+            </h4>
+            <ul className="space-y-4">
+              {careerData.registrations.map((item, i) => (
+                <li key={i} className="flex justify-between items-center border-b border-white/10 pb-3 group">
+                  <span className="text-sm md:text-base text-gray-400 group-hover:text-white transition-colors">{item.name}</span>
+                  <span className="text-[10px] md:text-xs font-mono text-gray-600 uppercase">{item.period}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* IR 피칭 전문성 카드 */}
+          <div className="bento-card md:col-span-7 bg-gray-50 p-10 md:p-16 rounded-[40px] flex flex-col md:flex-row gap-12 min-h-[400px] border border-gray-100 overflow-hidden relative">
+            <div className="flex-1 z-10">
+              <span className="text-[#FF3B30] font-bold uppercase tracking-widest text-xs mb-4 block">Specialty</span>
+              <h4 className="text-3xl md:text-4xl font-black mb-6 tracking-tight">
+                {careerData.specialty.title}
+              </h4>
+              <p className="text-gray-500 text-lg leading-relaxed mb-10">
+                {careerData.specialty.desc}
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {careerData.specialty.highlights.map((h, i) => (
+                  <span key={i} className="bg-white border border-gray-200 px-4 py-2 rounded-full text-xs font-bold text-gray-600">
+                    + {h}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="hidden lg:block absolute -right-10 -bottom-10 opacity-[0.03] pointer-events-none">
+              <span className="text-[20vw] font-black italic leading-none">PITCH</span>
+            </div>
           </div>
         </div>
       </div>

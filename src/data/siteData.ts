@@ -59,6 +59,34 @@ export const videoData = [
   },
 ];
 
+export const careerData = {
+  current: {
+    role: "한성대학교 캠퍼스타운 사업단",
+    title: "기술창업센터 총괄매니저",
+    desc: "창업 생태계의 구조를 설계하고 예비 창업자의 성장을 가속화하는 시스템 매니지먼트.",
+  },
+  stats: [
+    { number: "15+", label: "Experience", desc: "창업·경영 멘토링" },
+    { number: "200+", label: "Teams", desc: "예비~초기 창업자 지원" },
+    { number: "50+", label: "Consulting", desc: "사업화 전략 수립" },
+    { number: "30+", label: "Lectures", desc: "대학·기관 출강" },
+  ],
+  registrations: [
+    { name: "창업진흥원 평가위원 풀 등록", period: "2023~현재" },
+    { name: "경기콘텐츠진흥원 평가·심의위원 풀 등록", period: "2024~현재" },
+    { name: "경기콘텐츠진흥원 문화창업플래너 풀 등록", period: "2019~현재" },
+    { name: "성남산업진흥원 창업전문위원 풀 등록", period: "2023~현재" },
+    { name: "창업진흥원 예비창업패키지 전담멘토 풀 등록", period: "2019~2023" },
+    { name: "한성대학교 창업멘토 풀 등록", period: "2021~2022" },
+    { name: "동국대학교 창업전문기업 풀 등록", period: "2023~2025" },
+  ],
+  specialty: {
+    title: "IR 피칭 컨설팅",
+    desc: "보이스 트레이닝과 커뮤니케이션 기술을 결합하여 투자자의 마음을 움직이는 설득의 구조를 설계합니다.",
+    highlights: ["창업에듀 교육영상", "K-STARTUP 본선 멘토", "LG디스플레이 초청강의"],
+  },
+};
+
 export const galleryImages = [
   { file: "sample1", alt: "멘토링 현장 1" },
   { file: "sample2", alt: "멘토링 현장 2" },
