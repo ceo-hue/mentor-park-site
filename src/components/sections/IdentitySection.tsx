@@ -13,69 +13,79 @@ export function IdentitySection() {
     <section
       id="identity-philosophy"
       ref={ref}
-      className="py-20 md:py-32 lg:py-40 px-6 md:px-10 lg:px-24 bg-[#0a0a0a] text-white overflow-hidden"
+      className="py-20 md:py-40 lg:py-60 px-6 md:px-10 lg:px-24 bg-[#0a0a0a] text-white overflow-hidden"
     >
-      <div className="max-w-5xl mx-auto text-center">
+      <div className="max-w-6xl mx-auto text-center">
         <motion.div
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={0}
-          className="mb-12 md:mb-20"
+          className="mb-20 md:mb-32"
         >
-          <span className="text-gray-500 font-mono tracking-widest uppercase text-xs md:text-sm">
+          <span className="text-[#0057FF] font-mono tracking-[0.4em] uppercase text-xs md:text-sm mb-6 block">
             The Fundamental Question
           </span>
-          <h2 className="text-5xl md:text-7xl lg:text-8xl font-black mt-6 mb-10 tracking-tighter text-[#FF3B30]">
-            "{brandPhilosophy.identityParadox.question}"
+          <h2 className="text-[9vw] md:text-[7vw] font-black mt-6 mb-10 tracking-tighter leading-[0.9]">
+            {brandPhilosophy.identityParadox.question}
           </h2>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-20 text-left">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-12 text-left relative">
+          {/* FEAR 영역 */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={1}
-            className="p-8 md:p-12 bg-white/5 rounded-[30px] border border-white/10"
+            className="group p-10 md:p-16 bg-white/[0.02] rounded-[40px] border border-white/5 hover:bg-white/[0.04] transition-colors duration-700"
           >
-            <h3 className="text-[#FF3B30] text-xl md:text-2xl font-bold mb-4">FEAR : 공포</h3>
-            <p className="text-gray-400 text-lg md:text-xl leading-relaxed">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-[1px] bg-[#FF3B30]" />
+              <h3 className="text-[#FF3B30] text-xl md:text-2xl font-black tracking-widest uppercase">FEAR</h3>
+            </div>
+            <p className="text-gray-400 text-xl md:text-3xl font-bold leading-tight tracking-tight">
               {brandPhilosophy.identityParadox.fear}
-              <br />
-              <span className="text-sm mt-4 block text-gray-600">
-                "나를 이용하려는 스파이는 아닐까? 나의 핵심을 빼앗기지는 않을까?"
-              </span>
+            </p>
+            <p className="mt-8 text-gray-600 text-sm md:text-base leading-relaxed max-w-sm">
+              방향을 잃은 비즈니스는 외부의 자극에 쉽게 흔들리고, 결국 자신의 가치를 증명하지 못한 채 소멸의 길을 걷게 됩니다.
             </p>
           </motion.div>
 
+          {/* TRUST 영역 */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate={isInView ? "visible" : "hidden"}
             custom={2}
-            className="p-8 md:p-12 bg-[#0057FF]/10 rounded-[30px] border border-[#0057FF]/20"
+            className="group p-10 md:p-16 bg-[#0057FF]/[0.03] rounded-[40px] border border-[#0057FF]/10 hover:bg-[#0057FF]/[0.08] transition-colors duration-700"
           >
-            <h3 className="text-[#0057FF] text-xl md:text-2xl font-bold mb-4">TRUST : 신뢰</h3>
-            <p className="text-gray-100 text-lg md:text-xl leading-relaxed">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-12 h-[1px] bg-[#0057FF]" />
+              <h3 className="text-[#0057FF] text-xl md:text-2xl font-black tracking-widest uppercase">TRUST</h3>
+            </div>
+            <p className="text-gray-100 text-xl md:text-3xl font-bold leading-tight tracking-tight">
               {brandPhilosophy.identityParadox.trust}
-              <br />
-              <span className="text-sm mt-4 block text-[#0057FF]/70">
-                "정체성이 명확한 사람은 흔들리지 않습니다. 그리고 그 정체성은 당신의 성공과 연결됩니다."
-              </span>
+            </p>
+            <p className="mt-8 text-[#0057FF]/50 text-sm md:text-base leading-relaxed max-w-sm">
+              명확한 정체성은 단순한 선언이 아닙니다. 그것은 시장이 당신을 신뢰하게 만드는 가장 강력한 실체이자, 대체 불가능한 자산입니다.
             </p>
           </motion.div>
         </div>
 
-        <motion.p
+        <motion.div
           variants={fadeUp}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           custom={3}
-          className="mt-16 md:mt-24 text-2xl md:text-3xl lg:text-4xl font-bold text-gray-300 leading-tight italic"
+          className="mt-24 md:mt-40 max-w-4xl mx-auto"
         >
-          {brandPhilosophy.identityParadox.conclusion}
-        </motion.p>
+          <p className="text-2xl md:text-4xl lg:text-5xl font-black text-white leading-[1.1] tracking-tighter">
+            박용근은 비즈니스의 보이지 않는 <span className="text-[#0057FF]">마음</span>을 설계하여,
+            <br className="hidden md:block" />
+            시장이 신뢰할 수 있는 <span className="underline decoration-[#FF3B30] decoration-4 underline-offset-8">실체적 가치사슬</span>을 구축합니다.
+          </p>
+        </motion.div>
       </div>
     </section>
   );
