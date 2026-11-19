@@ -174,7 +174,7 @@ export function HyperScene() {
     <section
       id="m-hyper"
       ref={ref}
-      aria-label={`일하는 원칙: ${hyper.principles.join(" ")}`}
+      aria-label={`일하는 원칙: ${hyper.principles.join(" ")} ${hyper.stage4.title.join(" ")}`}
       className="group relative min-h-svh overflow-hidden bg-[#05070d] [&.is-animated]:h-svh [&.is-animated]:bg-transparent"
     >
       {/* 워프 공간: 행성 원 모양으로 잘려 있다가 화면 전체로 커진다 */}
@@ -206,7 +206,7 @@ export function HyperScene() {
 
       {/* HUD */}
       <div data-hud className="pointer-events-none absolute inset-x-6 top-20 flex justify-between font-mono text-[10px] tracking-[0.25em] text-white/60 md:inset-x-14 md:text-[11px] lg:inset-x-20">
-        <span>ONAIR PLANET · PRINCIPLES</span>
+        <span>ONAIR PLANET · OUR METHOD</span>
         <span>ORBIT INSERTION</span>
       </div>
 
@@ -259,13 +259,22 @@ export function HyperScene() {
           </ul>
         </div>
 
-        <p data-t="4" aria-hidden="true" className={`${title} invisible absolute`}>
-          {hyper.stage4.map((l) => (
-            <span key={l} className="block overflow-hidden">
-              <Chars text={l} className={l.endsWith(".") ? "text-[#c9ff6b]" : ""} />
-            </span>
-          ))}
-        </p>
+        {/* 마지막 단계 = 다음 '방법론' 장면의 타이틀 */}
+        <div data-t="4" aria-hidden="true" className="invisible absolute text-center">
+          <p className="overflow-hidden font-mono text-xs tracking-[0.4em] text-[#c9ff6b] md:text-sm">
+            <Chars text={hyper.stage4.kicker} />
+          </p>
+          <p className="mt-5 text-[clamp(2.6rem,9vw,7rem)] font-black leading-[1.05] tracking-[-0.04em] text-white">
+            {hyper.stage4.title.map((l) => (
+              <span key={l} className="block overflow-hidden pb-[0.06em]">
+                <Chars text={l} />
+              </span>
+            ))}
+          </p>
+          <p className="mt-6 overflow-hidden font-mono text-[11px] tracking-[0.3em] text-white/60 md:text-xs">
+            <Chars text={hyper.stage4.orbits} />
+          </p>
+        </div>
       </div>
     </section>
   );

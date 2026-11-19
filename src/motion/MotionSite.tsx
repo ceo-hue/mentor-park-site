@@ -20,8 +20,8 @@ export default function MotionSite() {
       <main>
         <HeroScene />
         <ProblemScene />
-        <MethodScene />
         <HyperScene />
+        <MethodScene />
         <PracticeScene />
         <GuidesScene />
         <NetworkScene />

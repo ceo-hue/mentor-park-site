@@ -49,7 +49,7 @@ export function MethodScene() {
       <div className="grid h-full content-center gap-6 pt-16 lg:grid-cols-2 lg:items-center lg:gap-12">
         <div className="order-2 lg:order-1">
           <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">{method.kicker}</p>
-          <h2 className="mt-3 text-[clamp(1.8rem,5vw,3.4rem)] font-black leading-tight tracking-[-0.03em]">{method.title}</h2>
+          <h2 className="mt-3 text-[clamp(1.8rem,5vw,3.4rem)] font-black leading-tight tracking-[-0.03em] group-[.is-animated]:sr-only">{method.title}</h2>
 
           <div className="mt-6 hidden items-end gap-5 group-[.is-animated]:flex">
             <span className="relative block h-[clamp(4.5rem,11vw,8.5rem)] w-[clamp(6rem,15vw,11rem)] overflow-hidden" aria-hidden="true">

@@ -102,8 +102,8 @@ export const cta = {
 export const chapters = [
   { id: "m-hero", label: "INTRO", nav: false },
   { id: "m-problem", label: "PROBLEM", nav: false },
-  { id: "m-method", label: "METHOD", nav: true },
-  { id: "m-hyper", label: "PRINCIPLES", nav: false },
+  { id: "m-hyper", label: "METHOD", nav: true },
+  { id: "m-method", label: "ORBITS", nav: false },
   { id: "m-practice", label: "PRACTICE", nav: true },
   { id: "m-guides", label: "GUIDES", nav: true },
   { id: "m-network", label: "NETWORK", nav: true },
@@ -118,7 +118,12 @@ export const chapters = [
 export const hyper = {
   stage1: ["TEST", "WITH", "CARE"],
   stage2: ["BUILD", "WITH", "EVIDENCE"],
-  stage4: ["EVIDENCE", "ALWAYS."],
+  // 마지막 단계는 이어지는 방법론 장면의 타이틀로 쓴다
+  stage4: {
+    kicker: "OUR METHOD",
+    title: ["4개의 궤도로", "일합니다"],
+    orbits: "OBSERVE · TARGET · DRAFT · VALIDATE",
+  },
   // 기존 사이트의 실무 가이드에서 뽑은 원칙 (문장은 짧게 줄였고 뜻은 바꾸지 않았다)
   principles: [
     "최근에 겪은 상황부터 묻습니다.",
