@@ -1,24 +1,39 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Anton, IBM_Plex_Mono, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
+// 명함 워드마크 계열 세리프 (OFL)
+const playfair = Playfair_Display({
+  subsets: ["latin"],
+  weight: ["600", "700", "900"],
+  variable: "--font-playfair",
+  display: "swap",
+});
+// 거대 디스플레이 타이포 (OFL)
+const anton = Anton({ subsets: ["latin"], weight: "400", variable: "--font-anton", display: "swap" });
+// UI 라벨용 모노 (OFL)
+const plexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
+  weight: ["400", "500"],
+  variable: "--font-plex-mono",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
-  title: "박용근 멘토 | The Architect of Insight",
-  description:
-    "정보는 AI가, 결정은 통찰이. 중장년 기술창업 전문 멘토 박용근의 포트폴리오 사이트입니다.",
-  keywords: ["박용근", "멘토", "창업", "스타트업", "멘토링", "한성대학교"],
+  title: "ONAIR PLANET | 온에어플래닛",
+  description: "온에어플래닛 — 비즈니스의 궤도를 설계합니다.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export const viewport: Viewport = {
+  themeColor: "#eef3ff",
+};
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="ko">
+    <html lang="ko" className={`${playfair.variable} ${anton.variable} ${plexMono.variable} is-gated`}>
       <head>
         <link
           rel="stylesheet"
-          as="style"
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css"
         />

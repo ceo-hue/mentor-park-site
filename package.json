@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.2.0",
     "@types/react": "^19.2.10",
@@ -20,6 +22,10 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "tailwindcss": "^4.1.18",
+    "three": "^0.187.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/three": "^0.187.0"
   }
 }
