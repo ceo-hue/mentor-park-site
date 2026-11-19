@@ -354,16 +354,20 @@ export function Insight() {
                 <div className="p-3">
                   <div className="relative aspect-video rounded-2xl overflow-hidden bg-sky-2">
                     <SafeImg src={thumb} alt={v.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                    <div className="absolute inset-0 bg-ink/20 group-hover:bg-ink/40 transition-colors" />
-                    <span className="absolute inset-0 grid place-items-center">
-                      <span className="px-5 py-2.5 rounded-full bg-white text-ink font-mono text-xs tracking-widest opacity-90 group-hover:opacity-100 group-hover:scale-105 transition">
-                        {v.type === "youtube" ? "▶ PLAY INSIGHT" : "VIEW INSIGHT ↗"}
-                      </span>
+                    {/* 썸네일은 가리지 않고 모서리에 작은 아이콘만 */}
+                    <span
+                      className="absolute right-2 bottom-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur text-ink grid place-items-center text-xs shadow-md group-hover:bg-planet group-hover:text-white group-hover:scale-110 transition"
+                      aria-hidden="true"
+                    >
+                      {v.type === "youtube" ? "▶" : "↗"}
                     </span>
                   </div>
                   <div className="px-3 pt-4 pb-3">
                     <p className="font-bold text-base md:text-lg leading-snug">{v.title}</p>
                     <p className="text-xs md:text-sm text-mute mt-1">{v.provider}</p>
+                    <p className="mt-4 font-mono text-[11px] tracking-[0.2em] text-ink/60 group-hover:text-planet transition-colors">
+                      {v.type === "youtube" ? "PLAY INSIGHT →" : "VIEW INSIGHT ↗"}
+                    </p>
                   </div>
                 </div>
               </HoloCard>
