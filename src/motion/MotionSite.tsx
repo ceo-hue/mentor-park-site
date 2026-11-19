@@ -18,7 +18,10 @@ export default function MotionSite() {
       <Chrome />
       <main>
         <HyperScene />
-        <ProblemScene />
+        {/* 첫 화면의 마지막 한 화면 뒤에 겹쳐 두어, 행성 안쪽 구멍으로 그대로 드러나게 한다 (여백은 HyperScene이 맞춘다) */}
+        <div id="m-problem-wrap" className="relative z-10">
+          <ProblemScene />
+        </div>
         <MethodScene />
         <PracticeScene />
         <GuidesScene />

@@ -47,14 +47,13 @@ export function MethodScene() {
   return (
     <section id="m-method" ref={ref} className="group relative min-h-svh overflow-hidden px-6 py-20 md:px-14 lg:px-20 [&.is-animated]:h-svh [&.is-animated]:py-0">
       <div className="grid h-full content-center gap-6 pt-16 lg:grid-cols-2 lg:items-center lg:gap-12">
-        <div className="order-2 lg:order-1">
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">{method.kicker}</p>
-          <h2 className="mt-3 text-[clamp(1.8rem,5vw,3.4rem)] font-black leading-tight tracking-[-0.03em]">{method.title}</h2>
+        <div>
+          <h2 className="motion-heading"><span className="title-gradient">{method.title}</span></h2>
 
-          <div className="mt-6 hidden items-end gap-5 group-[.is-animated]:flex">
-            <span className="relative block h-[clamp(4.5rem,11vw,8.5rem)] w-[clamp(6rem,15vw,11rem)] overflow-hidden" aria-hidden="true">
+          <div className="relative mt-5 hidden w-fit items-end gap-3 group-[.is-animated]:flex" aria-hidden="true">
+            <span className="relative block h-[clamp(2.75rem,7vw,5.75rem)] w-[clamp(3.4rem,9vw,7rem)] overflow-hidden">
               {method.steps.map((s) => (
-                <span key={s.step} data-num className="absolute inset-0 font-display text-[clamp(4.5rem,11vw,8.5rem)] leading-none text-planet">
+                <span key={s.step} data-num className="title-gradient absolute inset-0 font-display text-[clamp(2.75rem,7vw,5.75rem)] leading-none">
                   {s.step}
                 </span>
               ))}
@@ -64,8 +63,8 @@ export function MethodScene() {
 
           <div className="relative mt-4 space-y-3 group-[.is-animated]:min-h-[9rem] group-[.is-animated]:space-y-0">
             {method.steps.map((s) => (
-              <article key={s.step} data-card className="relative group-[.is-animated]:absolute inset-x-0 top-0 rounded-3xl border border-ink/10 bg-white/90 p-5 backdrop-blur md:p-6">
-                <p className="font-mono text-[11px] tracking-[0.3em] text-planet">{s.key}</p>
+              <article key={s.step} data-card className="motion-surface relative inset-x-0 top-0 p-5 group-[.is-animated]:absolute md:p-6">
+                <p className="motion-kicker group-[.is-animated]:sr-only">{s.step}단계</p>
                 <h3 className="mt-1 text-2xl font-black tracking-tight">{s.title}</h3>
                 <p className="mt-2 text-base leading-relaxed text-mute">{s.desc}</p>
               </article>
@@ -81,7 +80,7 @@ export function MethodScene() {
           </div>
         </div>
 
-        <div className="order-1 mx-auto w-[min(82vw,46svh)] lg:order-2 lg:w-[min(40vw,72svh)]">
+        <div className="mx-auto w-[min(74vw,38svh)] lg:w-[min(40vw,72svh)]">
           <svg viewBox="-230 -230 460 460" className="h-auto w-full overflow-visible" role="img" aria-label={`${method.title}: ${method.steps.map((s) => s.title).join(", ")}`}>
             {RINGS.map((r, i) => (
               <g key={r}>
@@ -111,8 +110,8 @@ export function MethodScene() {
                   <stop offset="60%" stopColor="#fff" stopOpacity="0" />
                 </radialGradient>
               </defs>
-              <text y={5} textAnchor="middle" className="fill-white font-display text-[15px] tracking-wide">
-                YOUR TEAM
+              <text y={5} textAnchor="middle" className="fill-white text-[14px] font-bold">
+                창업팀
               </text>
             </g>
           </svg>

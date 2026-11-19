@@ -31,6 +31,7 @@ export function ProblemScene() {
       // 1) 엉킨 선이 그려진다
       .from(q("[data-before] [data-word]"), { yPercent: 110, stagger: 0.08, duration: 0.3, ease: "power3.out" }, 0)
       .fromTo(q("[data-path]"), { strokeDashoffset: 1 }, { strokeDashoffset: 0, duration: 0.9, stagger: 0.12 }, 0.1)
+      .fromTo(q("[data-guide-path]"), { opacity: 0.22 }, { opacity: 0, duration: 0.75 }, 0.24)
       .to(q("[data-label]"), { opacity: 1, duration: 0.2, stagger: 0.1 }, 0.7)
       // 2) 선이 하나의 질서로 정렬된다
       .to(q("[data-path]"), { attr: { d: (i: number) => STRAIGHT[i] }, duration: 1, stagger: 0.08, ease: "power2.inOut" }, 1.3)
@@ -43,55 +44,62 @@ export function ProblemScene() {
   });
 
   return (
-    <section id="m-problem" ref={ref} className="relative h-svh overflow-hidden px-6 md:px-14 lg:px-20">
+    <section id="m-problem" ref={ref} className="relative z-[6] h-svh overflow-hidden bg-sky-0 px-6 md:px-14 lg:px-20">
       <div className="grid h-full content-center gap-8 pt-16 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-14">
         <div>
-          <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">{problem.kicker}</p>
-          <div className="relative mt-4 min-h-[9.5rem] text-[clamp(1.9rem,6.4vw,3.6rem)] font-black leading-[1.12] tracking-[-0.03em] md:min-h-[13rem]">
+          <p className="motion-kicker">{problem.kicker}</p>
+          <div className="motion-heading relative mt-4 min-h-[9.5rem] md:min-h-[13rem]">
             <p data-before className="absolute inset-0 opacity-0">
               {problem.before.map((w) => (
                 <span key={w} className="block overflow-hidden">
-                  <span data-word className="block">{w}</span>
+                  <span data-word className="title-gradient block">{w}</span>
                 </span>
               ))}
             </p>
-            <p data-after className="absolute inset-0 text-planet">
+            <p data-after className="absolute inset-0 text-planet-ink">
               {problem.after.map((w) => (
                 <span key={w} className="block overflow-hidden">
-                  <span data-word className="block">{w}</span>
+                  <span data-word className="title-gradient block">{w}</span>
                 </span>
               ))}
             </p>
           </div>
         </div>
 
-        <div className="relative">
-          <svg viewBox="0 0 800 400" className="h-auto w-full overflow-visible" aria-hidden="true">
-            {Y.map((y) => (
-              <line key={y} x1="30" x2="770" y1={y} y2={y} stroke="#0a0f1c" strokeOpacity="0.06" strokeDasharray="2 8" />
-            ))}
-            {STRAIGHT.map((d, i) => (
-              <path
-                key={i}
-                data-path
-                d={d}
-                pathLength={1}
-                strokeDasharray="1"
-                stroke={COLORS[i]}
-                strokeWidth={i === 1 ? 5 : 3.5}
-                strokeLinecap="round"
-                fill="none"
-              />
-            ))}
-            {Y.map((y, i) => (
-              <circle key={y} data-dot cx="770" cy={y} r="9" fill="#fff" stroke={COLORS[i]} strokeWidth="4" />
-            ))}
-            {problem.tracks.map((t, i) => (
-              <text key={t.key} data-label x="30" y={Y[i] - 18} className="fill-ink text-[18px] font-bold">
-                {t.label}
-              </text>
-            ))}
-          </svg>
+        <div>
+          <div className="motion-surface overflow-hidden">
+            <div className="p-3 md:p-5">
+            <svg viewBox="0 0 800 400" className="h-auto w-full overflow-visible" aria-hidden="true">
+              {Y.map((y) => (
+                <line key={y} x1="30" x2="770" y1={y} y2={y} stroke="#0a0f1c" strokeOpacity="0.06" strokeDasharray="2 8" />
+              ))}
+              {TANGLED.map((d, i) => (
+                <path key={d} data-guide-path d={d} fill="none" stroke={COLORS[i]} strokeWidth="3" strokeDasharray="3 8" opacity="0" />
+              ))}
+              {STRAIGHT.map((d, i) => (
+                <path
+                  key={i}
+                  data-path
+                  d={d}
+                  pathLength={1}
+                  strokeDasharray="1"
+                  stroke={COLORS[i]}
+                  strokeWidth={i === 1 ? 5 : 3.5}
+                  strokeLinecap="round"
+                  fill="none"
+                />
+              ))}
+              {Y.map((y, i) => (
+                <circle key={y} data-dot cx="770" cy={y} r="9" fill="#fff" stroke={COLORS[i]} strokeWidth="4" />
+              ))}
+              {problem.tracks.map((t, i) => (
+                <text key={t.key} data-label x="30" y={Y[i] - 18} className="fill-ink text-[18px] font-bold">
+                  {t.label}
+                </text>
+              ))}
+            </svg>
+            </div>
+          </div>
           <ul className="mt-4 grid gap-2 sm:grid-cols-3">
             {problem.tracks.map((t, i) => (
               <li key={t.key} data-question className="rounded-2xl border border-ink/10 bg-white/85 p-3.5 text-sm leading-snug backdrop-blur">

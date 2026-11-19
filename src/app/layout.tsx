@@ -13,9 +13,9 @@ const plexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-const title = `${brand.nameKo} | 극초기 스타트업 검증 파트너 · PMF·IR·바이브 코딩`;
+const title = `${brand.nameKo} | 극초기 스타트업 멘토링 · PMF·IR·바이브 코딩`;
 const description =
-  `온에어플래닛(ONAIR PLANET)은 극초기 스타트업이 첫 고객, 첫 투자자 미팅, 첫 MVP에 도달하도록 검증의 순서를 설계합니다. 대표 멘토 ${person.name}. PMF 검증, IR 피치·덱, 바이브 코딩.`;
+  `온에어플래닛(ONAIR PLANET)은 스타트업의 시작을 돕는 파트너입니다. ${person.name} 멘토가 PMF 검증, IR 피치·덱, 바이브 코딩을 지원합니다.`;
 
 export const metadata: Metadata = {
   title,

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { BrandLogo } from "@/components/ui/LogoMark";
 import { brand, chapters } from "./content";
 import { ScrollTrigger } from "./engine";
 
@@ -21,24 +22,34 @@ export function Chrome() {
       }
       return 0;
     };
+    let frame = 0;
+    const syncActive = () => {
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        setActive(findActive());
+      });
+    };
     const total = ScrollTrigger.create({
       start: 0,
       end: "max",
-      onUpdate: (self) => {
-        setProgress(self.progress);
-        setActive(findActive());
-      },
+      onUpdate: (self) => setProgress(self.progress),
     });
-    setActive(findActive());
+    window.addEventListener("scroll", syncActive, { passive: true });
+    ScrollTrigger.addEventListener("refresh", syncActive);
+    syncActive();
     // 모든 장면의 고정 구간이 만들어진 뒤 위치를 다시 계산
     const id = window.setTimeout(() => ScrollTrigger.refresh(), 300);
     return () => {
       window.clearTimeout(id);
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", syncActive);
+      ScrollTrigger.removeEventListener("refresh", syncActive);
       total.kill();
     };
   }, []);
 
-  // 하이퍼스페이스 도형이 화면을 덮으면(reveal > 0.55) UI를 밝게 — 원본과 같은 기준
+  // 첫 화면이 남색으로 반전된 동안 헤더도 어둡게
   const [dark, setDark] = useState(false);
   useEffect(() => {
     const on = (e: Event) => setDark(Boolean((e as CustomEvent<boolean>).detail));
@@ -52,25 +63,23 @@ export function Chrome() {
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-ink/5" aria-hidden="true">
         <div className="h-full origin-left bg-planet" style={{ transform: `scaleX(${progress})` }} />
       </div>
-      <header className={`fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-gradient-to-b to-transparent px-6 transition-colors duration-500 md:h-20 md:px-14 lg:px-20 ${dark ? "from-black/60" : "from-sky-0/90"}`}>
-        <a href="#m-intro" className="flex items-center gap-2" aria-label={`${brand.nameKo} 처음으로`}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/wordmark-ko.svg" alt="" width={129} height={94} className="h-9 w-auto md:h-11" />
-          <span className={`hidden font-mono text-[11px] tracking-[0.25em] sm:inline ${dark ? "text-white/70" : "text-ink/70"}`}>{brand.nameEn}</span>
+      <header className={`fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-gradient-to-b px-6 transition-colors duration-300 md:h-20 md:px-14 lg:px-20 ${dark ? "from-[#0a0f1c] to-[#0a0f1c]/0" : "from-sky-0 to-sky-0/40"}`}>
+        <a href="#m-intro" className="shrink-0" aria-label={`${brand.nameKo} 처음으로`}>
+          <BrandLogo className="w-28 md:w-[8.5rem]" />
         </a>
-        <nav className="flex items-center gap-4 font-mono text-[11px] tracking-[0.15em] md:gap-6 md:text-xs" aria-label="장면">
+        <nav className="flex items-center gap-4 text-[13px] font-semibold md:gap-7" aria-label="주 메뉴">
           {chapters.filter((c) => c.nav).map((c) => (
-            <a key={c.id} href={`#${c.id}`} className={`hidden hover:text-planet lg:inline ${chapter.id === c.id ? "text-planet" : dark ? "text-white/70" : "text-ink/70"}`}>
-              [{c.label}]
+            <a key={c.id} href={`#${c.id}`} aria-current={chapter.id === c.id ? "location" : undefined} className={`hidden underline-offset-8 transition-colors hover:text-planet-ink lg:inline ${chapter.id === c.id ? (dark ? "text-planet-soft underline" : "text-planet-ink underline") : dark ? "text-white/70" : "text-mute"}`}>
+              {c.label}
             </a>
           ))}
-          <a href="#m-contact" className={`rounded-full px-4 py-2 font-sans text-sm font-bold tracking-normal hover:bg-planet hover:text-white ${dark ? "bg-white text-ink" : "bg-ink text-white"}`}>
+          <a href="#m-contact" className={`rounded-full px-4 py-2 text-sm font-bold transition-colors ${dark ? "bg-white text-ink hover:bg-planet-soft" : "bg-ink text-white hover:bg-planet-ink"}`}>
             프로젝트 문의
           </a>
         </nav>
       </header>
-      <p className={`fixed bottom-5 left-6 z-40 font-mono text-[11px] tracking-[0.2em] md:left-14 lg:left-20 ${dark ? "text-white/70" : "text-ink/70"}`} aria-live="polite">
-        <span className={dark ? "text-white" : "text-ink"}>{String(active + 1).padStart(2, "0")}</span> / {String(chapters.length).padStart(2, "0")} · {chapter.label}
+      <p className="pointer-events-none fixed bottom-2 left-6 z-40 rounded-full bg-sky-0/90 px-2 py-0.5 text-[11px] font-semibold text-mute backdrop-blur-sm md:left-14 lg:left-20" aria-live="polite">
+        <span className="font-mono text-planet-ink">{String(active + 1).padStart(2, "0")} / {String(chapters.length).padStart(2, "0")}</span> · {chapter.label}
       </p>
     </>
   );

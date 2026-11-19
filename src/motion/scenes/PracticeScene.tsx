@@ -2,6 +2,7 @@
 
 import { irDeck, mvpBuild, practices } from "../content";
 import { gsap, useScene } from "../engine";
+import { HyperBackdrop } from "../HyperBackdrop";
 
 /* ------------------------------------------------------------------ */
 /* 패널별 모션그래픽                                                   */
@@ -31,7 +32,7 @@ function PmfGraphic() {
         );
       })}
       <text y="-6" textAnchor="middle" className="fill-mute font-mono text-[12px] tracking-[0.2em]">
-        1 WEEK
+        1주일
       </text>
       <text y="18" textAnchor="middle" className="fill-ink text-[17px] font-black">
         검증 루프
@@ -49,8 +50,8 @@ function DeckGraphic() {
           <div
             key={r.label}
             data-slide={i}
-            className="absolute left-1/2 top-1/2 w-[62%] rounded-xl border border-ink/10 bg-white p-3 shadow-[0_20px_40px_-24px_rgba(20,40,90,0.45)] md:p-4"
-            style={{ zIndex: 10 - i, transform: `translate(${-50 + k * 34}%, ${-50 + Math.abs(k) * 9}%) rotate(${k * 6}deg)` }}
+            className="absolute left-1/2 top-1/2 w-[52%] rounded-xl border border-ink/10 bg-white p-3 shadow-[0_20px_40px_-24px_rgba(20,40,90,0.45)] md:p-4"
+            style={{ zIndex: 10 - i, transform: `translate(${-50 + k * 22}%, ${-50 + Math.abs(k) * 8}%) rotate(${k * 5}deg)` }}
           >
             <div className="flex items-center justify-between font-mono text-[10px] text-mute">
               <span>{String(i + 1).padStart(2, "0")}</span>
@@ -127,7 +128,7 @@ function addPanelMotion(tl: gsap.core.Timeline, panel: HTMLElement, id: string, 
       tl.fromTo(
         s,
         { x: 0, y: 0, xPercent: -50, yPercent: -50, rotation: 0 },
-        { x: 0, y: 0, xPercent: -50 + k * 34, yPercent: -50 + Math.abs(k) * 9, rotation: k * 6, duration: 0.45, ease: "power3.inOut" },
+        { x: 0, y: 0, xPercent: -50 + k * 22, yPercent: -50 + Math.abs(k) * 8, rotation: k * 5, duration: 0.45, ease: "power3.inOut" },
         at + 0.15 + i * 0.05
       );
     });
@@ -189,19 +190,26 @@ export function PracticeScene() {
   });
 
   return (
-    <section id="m-practice" ref={ref} className="relative overflow-hidden lg:h-svh">
-      <div className="px-6 pt-20 md:px-14 lg:absolute lg:inset-x-0 lg:top-0 lg:z-10 lg:px-20 lg:pt-24">
-        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">Practice Areas</p>
+    <section id="m-practice" ref={ref} className="relative isolate overflow-clip lg:h-svh">
+      {/* 첫 화면의 하이퍼스페이스 빛줄기 (행성 없이). 그래픽 카드 뒤에서 뻗어 나온다 */}
+      <HyperBackdrop className="-z-10" />
+      <div className="relative px-6 pt-20 md:px-14 lg:absolute lg:inset-x-0 lg:top-0 lg:z-10 lg:px-20 lg:pt-24">
+        <p className="motion-kicker">지원 분야</p>
       </div>
-      <div data-track className="flex flex-col lg:h-full lg:w-[300%] lg:flex-row">
+      <div data-track className="relative flex flex-col lg:h-full lg:w-[300%] lg:flex-row">
         {practices.map((p, i) => (
           <article key={p.id} data-panel={p.id} className="flex min-h-svh items-center px-6 py-16 md:px-14 lg:h-full lg:min-h-0 lg:w-1/3 lg:px-20 lg:py-0">
             <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
               <div>
                 <div data-p-head>
-                  <p className="font-display text-[clamp(3.5rem,8vw,6.5rem)] leading-none text-planet/25">{String(i + 1).padStart(2, "0")}</p>
-                  <h2 className="mt-1 text-[clamp(2rem,5vw,3.6rem)] font-black leading-tight tracking-[-0.03em]">{p.title}</h2>
-                  <p className="mt-2 text-lg font-bold text-planet">{p.outcome}</p>
+                  {/* 번호와 제목을 한 줄로 */}
+                  <h2 className="motion-heading flex items-baseline gap-[0.35em]">
+                    <span className="title-gradient font-display font-normal" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span className="title-gradient">{p.title}</span>
+                  </h2>
+                  <p className="mt-2 text-lg font-bold text-planet-ink">{p.outcome}</p>
                   <p className="mt-3 max-w-xl text-base leading-relaxed text-mute">{p.description}</p>
                 </div>
                 <ul className="mt-5 flex flex-wrap gap-2">
@@ -211,15 +219,17 @@ export function PracticeScene() {
                     </li>
                   ))}
                 </ul>
-                <div data-p-row className="mt-5 rounded-2xl border border-planet/25 bg-white/80 p-4 backdrop-blur">
-                  <p className="font-mono text-[10px] tracking-[0.25em] text-planet">DELIVERABLES</p>
+                <div data-p-row className="motion-surface mt-5 p-4">
+                  <p className="motion-kicker">준비하는 결과물</p>
                   <p className="mt-1 text-sm font-bold leading-snug">{p.deliverable}</p>
                 </div>
               </div>
-              <div className="flex justify-center">
-                {p.id === "pmf" && <PmfGraphic />}
-                {p.id === "ir" && <DeckGraphic />}
-                {p.id === "vibe-coding" && <VibeGraphic />}
+              <div className="motion-surface flex min-w-0 flex-col overflow-hidden">
+                <div className="flex items-center justify-center p-4 sm:p-6">
+                  {p.id === "pmf" && <PmfGraphic />}
+                  {p.id === "ir" && <DeckGraphic />}
+                  {p.id === "vibe-coding" && <VibeGraphic />}
+                </div>
               </div>
             </div>
           </article>

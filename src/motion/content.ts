@@ -9,16 +9,17 @@ import { insights as siteInsights, person as sitePerson } from "@/content/site";
 export { brand };
 
 export const hero = {
-  kicker: "Early-stage Startup Validation Partner",
-  lines: ["WE DESIGN", "THE FIRST", "ORBIT."],
-  ko: "온에어플래닛은 극초기 스타트업이 첫 고객, 첫 투자자 미팅, 첫 MVP에 도달하도록 검증의 순서를 설계합니다.",
+  kicker: "극초기 스타트업 멘토링",
+  lines: ["스타트업의 시작을", "돕는 파트너"],
+  services: specialties.map(({ title }) => title),
+  ko: "고객 반응을 살피고, 투자 발표와 첫 MVP를 준비하도록 돕습니다.",
 };
 
-/** 1. 문제 — 세 갈래로 엉킨 질문이 하나의 궤도로 정렬된다 */
+/** 1. 첫 상담에서 확인할 질문 */
 export const problem = {
-  kicker: "The Problem",
+  kicker: "첫 상담에서 확인할 질문",
   before: ["아이디어는 있는데", "무엇부터 확인해야 할지", "모를 때."],
-  after: ["검증할 순서를 정하면", "궤도가 생깁니다."],
+  after: ["가장 먼저 검증할", "가설을 정합니다."],
   tracks: [
     { key: "customer", label: "고객", question: "누가, 어떤 상황에서 불편을 겪는가" },
     { key: "investor", label: "투자자", question: "무엇을 근거로 설득할 것인가" },
@@ -26,11 +27,10 @@ export const problem = {
   ],
 };
 
-/** 2. 방법론 — 기존 4단계 진행 과정을 궤도 체계로 */
-const methodKeys = ["OBSERVE", "TARGET", "DRAFT", "VALIDATE"] as const;
+/** 2. 멘토링 진행 과정 */
+const methodKeys = ["현황", "목표", "초안", "검증"] as const;
 export const method = {
-  kicker: "Our Method",
-  title: "4개의 궤도로 일합니다",
+  title: "멘토링 진행 과정",
   steps: process.steps.map((s, i) => ({ ...s, key: methodKeys[i] })),
 };
 
@@ -75,8 +75,7 @@ const orgOf = (name: string) =>
     .trim();
 
 export const network = {
-  kicker: "Institutional Network",
-  title: "공공·대학 창업 생태계와 함께 일해 왔습니다",
+  title: "멘토링과 기관 활동",
   note: proof.evaluationPool.note,
   nodes: ([
     ...proof.mentoring.map((e) => ({ year: firstYear(e.period), org: orgOf(e.name), role: e.name })),
@@ -92,7 +91,6 @@ export const leader = {
 };
 
 export const cta = {
-  marquee: "FIND YOUR FIRST ORBIT",
   title: ["첫 상담에서", "검증할 순서를 정합니다."],
   body: "현재 단계와 가장 막히는 일을 알려 주세요. 인터뷰 기록, IR 덱 또는 데모가 있다면 함께 보내 주세요.",
   button: "프로젝트 문의하기",
@@ -100,29 +98,35 @@ export const cta = {
 };
 
 export const chapters = [
-  { id: "m-intro", label: "INTRO", nav: false },
-  { id: "m-problem", label: "PROBLEM", nav: false },
-  { id: "m-method", label: "METHOD", nav: true },
-  { id: "m-practice", label: "PRACTICE", nav: true },
-  { id: "m-guides", label: "GUIDES", nav: true },
-  { id: "m-network", label: "NETWORK", nav: true },
-  { id: "m-contact", label: "CONTACT", nav: false },
+  { id: "m-intro", label: "처음", nav: false },
+  { id: "m-problem", label: "첫 상담", nav: false },
+  { id: "m-method", label: "진행 과정", nav: true },
+  { id: "m-practice", label: "지원 분야", nav: true },
+  { id: "m-guides", label: "실무 가이드", nav: true },
+  { id: "m-network", label: "멘토 이력", nav: true },
+  { id: "m-contact", label: "문의", nav: false },
 ] as const;
 
 /* ------------------------------------------------------------------ */
 /* 기존 사이트 콘텐츠 연결                                              */
 /* ------------------------------------------------------------------ */
 
-/** 오프닝 타이틀(하이퍼스페이스) — 타이틀 → TEST WITH CARE → 고리와 원칙 → BUILD WITH EVIDENCE */
+/** 오프닝 타이틀과 장면별 실무 원칙 */
 export const hyper = {
-  stage1: ["TEST", "WITH", "CARE"],
-  stage2: ["BUILD", "WITH", "EVIDENCE"],
-  // 고리 단계의 네 문장 ("|"는 줄바꿈). 기존 사이트 실무 가이드에서 뽑아 줄였다
+  stage1: {
+    lines: ["고객의 문제부터", "확인합니다."],
+    ko: "PMF 검증에서는 고객이 이미 쓰는 대안과 실제 행동을 살핍니다.",
+  },
+  stage2: {
+    lines: ["IR 피치·덱과", "첫 MVP를 준비합니다."],
+    ko: "IR 덱에 담을 근거를 정리하고, 바이브 코딩으로 MVP의 핵심 기능을 구현하도록 돕습니다.",
+  },
+  // 고리 장면의 "|"는 줄바꿈 자리다.
   says: [
-    "최근에 겪은 상황부터|묻습니다.",
-    "실험 전에|판단 기준을 정합니다.",
-    "슬라이드마다|주장 하나, 근거 하나.",
-    "핵심 흐름 하나가|동작하는 MVP부터.",
+    "고객이 실제로 겪은|상황을 묻습니다.",
+    "실험을 시작하기 전에|판단 기준을 정합니다.",
+    "IR 덱에는 주장마다|근거를 붙입니다.",
+    "MVP는 검증에 필요한|핵심 기능부터 만듭니다.",
   ],
 };
 
@@ -138,7 +142,6 @@ export const guides = specialties.map((s) => ({
 }));
 
 export const resources = {
-  kicker: "Field Guides",
   title: siteInsights.title,
   intro: "고객 검증 계획, IR 덱과 피치, 첫 MVP 요구사항을 준비하는 방법을 분야별로 정리했습니다.",
   videosTitle: siteInsights.videosTitle,

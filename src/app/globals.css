@@ -10,6 +10,7 @@
   --color-line: rgb(10 15 28 / 0.12);
   --color-planet: #4289d8;
   --color-planet-soft: #9cc4ff;
+  --color-planet-ink: #215a98;
   --font-sans: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
     system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   --font-display: var(--font-anton), Impact, "Arial Narrow", sans-serif;
@@ -21,7 +22,8 @@ html {
 }
 
 body {
-  background: linear-gradient(180deg, var(--color-sky-0) 0%, var(--color-sky-1) 45%, var(--color-sky-2) 100%);
+  /* 규칙: 페이지 바탕은 한 가지 연한 색. 색은 카드의 홀로 띠에서만 낸다 */
+  background: var(--color-sky-0);
   color: var(--color-ink);
   font-family: var(--font-sans);
   word-break: keep-all;
@@ -124,15 +126,11 @@ html.lenis body {
     --holo: 360deg;
   }
 }
+:root {
+  --spectrum-stops: #c6d6ff, #f3d3ff, #d2fff1, #fff3c4, #c6d6ff;
+}
 .holo {
-  background: conic-gradient(
-    from var(--holo),
-    #c6d6ff,
-    #f3d3ff,
-    #d2fff1,
-    #fff3c4,
-    #c6d6ff
-  );
+  background: conic-gradient(from var(--holo), var(--spectrum-stops));
   animation: holo-spin 8s linear infinite;
 }
 
@@ -188,21 +186,82 @@ html.lenis body {
   }
 }
 
-/* ------------------------------------------------------------------ */
-/* 하이퍼스페이스 (NoraVale 글래스 스크롤 데모에서 이식)                  */
-/* 8화면 높이 섹션 안의 sticky 무대, 단계별 표시, 시드 고정 글자 등장     */
-/* ------------------------------------------------------------------ */
+.motion-heading {
+  font-size: clamp(1.85rem, 4.15vw, 3.45rem);
+  font-weight: 900;
+  line-height: 1.14;
+  letter-spacing: -0.04em;
+  text-wrap: balance;
+}
+.motion-kicker {
+  color: var(--color-planet-ink);
+  font-size: 0.78rem;
+  font-weight: 750;
+  letter-spacing: 0.06em;
+}
+.motion-surface {
+  border: 1px solid rgb(10 15 28 / 0.09);
+  border-radius: var(--surface-radius, 1.75rem);
+  background-color: #fff;
+  box-shadow: 0 22px 48px -34px rgb(30 60 130 / 0.4);
+}
+/* 홀로 띠: 카드의 일부(띠)에만 쓰고, 그 위에는 흰 숫자·심볼 하나만 올린다. 글은 흰 면에 둔다 */
+.motion-spectrum {
+  position: relative;
+  isolation: isolate;
+  background: conic-gradient(from var(--spectrum-angle, 32deg) at var(--spectrum-center, 65% 54%), var(--spectrum-stops));
+}
+.motion-spectrum::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(rgb(10 15 28 / 0.16) 0.9px, transparent 1.1px);
+  background-size: 7px 7px;
+  opacity: 0.4;
+  pointer-events: none;
+  content: "";
+}
+.band-figure {
+  font-family: var(--font-display);
+  font-size: clamp(3.5rem, 6vw, 5.5rem);
+  line-height: 0.85;
+  color: rgb(255 255 255 / 0.92);
+  filter: drop-shadow(0 8px 20px rgb(40 80 160 / 0.25));
+}
+[data-panel="ir"] .motion-spectrum {
+  --spectrum-angle: 88deg;
+}
+[data-panel="vibe-coding"] .motion-spectrum {
+  --spectrum-angle: 192deg;
+}
+
+.hy-backdrop {
+  --open-frame: 1;
+  --intro-frame-gutter: clamp(0.75rem, 4.2vw, 4rem);
+  --spectrum-center: 73% 52%;
+  /* 무대(sticky) 안의 맨 아래 층: 섹션이 끝나면 함께 빠져나가 다음 장면에 잔상을 남기지 않는다 */
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  clip-path: inset(
+    calc(clamp(4.1rem, 10svh, 6rem) * var(--open-frame))
+    calc(var(--intro-frame-gutter) * var(--open-frame))
+    calc(2rem * var(--open-frame))
+    round calc(2rem * var(--open-frame))
+  );
+  pointer-events: none;
+}
 .hy-stick {
   position: sticky;
   top: 0;
   height: 100vh;
   height: 100svh;
-  min-height: 560px;
+  min-height: min(560px, 100svh);
   display: grid;
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: repeat(6, 1fr);
   padding: 5rem 1.5rem;
-  transition: color 0.3s;
   color: var(--color-ink);
   z-index: 10;
 }
@@ -210,9 +269,6 @@ html.lenis body {
   .hy-stick {
     padding: 5rem 3.5rem;
   }
-}
-.hy-stick.white {
-  color: #fff;
 }
 .hy-stage {
   display: none;
@@ -231,13 +287,79 @@ html.lenis body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  font: 800 clamp(30px, 6.8vw, 110px) / 1 var(--font-sans);
-  text-transform: uppercase;
+  font: 900 clamp(2.45rem, 6.3vw, 6.75rem) / 1.05 var(--font-sans);
   text-align: center;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.055em;
 }
-.hy-big .hy-stag {
+.hy-big > span {
   display: block;
+}
+.hy-big > :last-child {
+  color: var(--color-planet-ink);
+}
+.hy-hero-copy {
+  grid-column: 1 / -1;
+  grid-row: 1 / 5;
+  align-self: center;
+  padding-inline: 0.35rem;
+}
+.hy-hero-title {
+  align-items: flex-start;
+  margin-top: 0.9rem;
+  font-size: clamp(1.85rem, 8.5vw, 3.2rem);
+  text-align: left;
+}
+.hy-hero-services {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 1.15rem;
+}
+.hy-hero-services > li {
+  border: 1px solid rgb(33 90 152 / 0.14);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.7);
+  padding: 0.35rem 0.65rem;
+  color: var(--color-planet-ink);
+  font-size: 0.75rem;
+  font-weight: 750;
+}
+.hy-scroll-label {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  align-self: end;
+  padding-inline: 0.35rem;
+  color: var(--color-planet-ink);
+  font-size: 0.75rem;
+  font-weight: 650;
+}
+@media (min-width: 768px) {
+  .hy-hero-copy {
+    grid-column: 1 / 10;
+    grid-row: 1 / 7;
+    padding-inline: clamp(1rem, 3vw, 3rem) 0;
+  }
+  .hy-hero-title {
+    font-size: clamp(3.3rem, 6.15vw, 7.75rem);
+  }
+  .hy-hero-services > li {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.875rem;
+  }
+  .hy-scroll-label {
+    padding-inline-start: clamp(1rem, 3vw, 3rem);
+  }
+}
+.hy-caption {
+  grid-column: 1 / -1;
+  grid-row: 6;
+  align-self: center;
+  justify-self: center;
+  max-width: 36rem;
+  text-align: center;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-mute);
 }
 .hy-rings {
   position: absolute;
@@ -256,8 +378,8 @@ html.lenis body {
 }
 .hy-rings ellipse {
   fill: none;
-  stroke: #c9ff3a;
-  stroke-width: 2;
+  stroke: rgb(33 90 152 / 0.45);
+  stroke-width: 1.5;
   vector-effect: non-scaling-stroke;
 }
 .hy-say {
@@ -314,9 +436,150 @@ html.lenis body {
     opacity: 1;
   }
 }
+.hy-big .hy-stag.play .hy-ch {
+  opacity: 1;
+  animation: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hy-big .hy-stag.play {
+    animation: hy-line-in 0.68s cubic-bezier(0.22, 1, 0.36, 1) var(--line-delay, 0ms) both;
+  }
+}
+@keyframes hy-line-in {
+  from {
+    opacity: 0;
+    clip-path: inset(100% -0.15em -0.14em);
+    transform: translateY(0.2em);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(-0.08em -0.15em -0.14em);
+    transform: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .hy-ch {
     opacity: 1;
     animation: none !important;
   }
+}
+
+/* 첫 화면 정리: 도트 없이, 남색 반전, 커튼으로 다음 장면과 이어짐 */
+.hy-backdrop {
+  background: #fff;
+}
+/* 띠는 잘린 카드(clip-path) 안쪽에 여백을 두고 놓는다 */
+.hy-band {
+  --band-gap: 0.9rem;
+  position: absolute;
+  right: calc(var(--intro-frame-gutter) * var(--open-frame) + var(--band-gap));
+  bottom: calc(2rem * var(--open-frame) + var(--band-gap));
+  left: calc(var(--intro-frame-gutter) * var(--open-frame) + var(--band-gap));
+  height: 34%;
+  border-radius: 1.5rem;
+  --spectrum-center: 50% 55%;
+}
+@media (min-width: 768px) {
+  .hy-band {
+    --band-gap: 1.25rem;
+    top: calc(clamp(4.1rem, 10svh, 6rem) * var(--open-frame) + var(--band-gap));
+    left: auto;
+    width: 38%;
+    height: auto;
+  }
+}
+.hy-night {
+  /* 투명도 대신 원으로 퍼진다: 화면의 각 지점은 흰색이거나 남색이고, 회색 중간 상태가 없다 */
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 90% at 50% 45%, #13213d 0%, #0a0f1c 62%);
+  clip-path: circle(var(--reveal-r, 0px) at var(--reveal-x, 78%) var(--reveal-y, 50%));
+  pointer-events: none;
+}
+/* 첫 화면 무대의 원형 구멍: 커지는 행성 안쪽으로 뒤에 겹친 두 번째 페이지가 보인다 */
+.hy-stick {
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 1px));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 1px));
+}
+.hy-stick {
+  transition: color 0.35s ease;
+}
+.hy-stick.on-dark {
+  color: #fff;
+}
+.hy-stick.on-dark .text-mute,
+.hy-stick.on-dark .hy-caption {
+  color: rgb(255 255 255 / 0.72);
+}
+.hy-stick.on-dark .hy-big > :last-child,
+.hy-stick.on-dark .motion-kicker,
+.hy-stick.on-dark .hy-scroll-label {
+  color: var(--color-planet-soft);
+}
+.hy-stick.on-dark .hy-hero-services > li {
+  border-color: rgb(255 255 255 / 0.2);
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
+}
+.hy-stick.on-dark .hy-rings ellipse {
+  stroke: rgb(201 255 58 / 0.85);
+  filter: drop-shadow(0 0 4px rgb(201 255 58 / 0.5));
+}
+/* 모바일: 띠 위에 글자를 두지 않는다 */
+@media (max-width: 767px) {
+  .hy-scroll-label {
+    display: none;
+  }
+}
+
+/* 섹션 타이틀 그라디언트: 색은 타이틀 글자에만 쓰고, 그 아래 내용은 흰 면에 깔끔하게 둔다.
+   홀로 카드와 같은 계열(파랑·보라·청록)을 글자로 읽히도록 진하게 바꿨다 */
+.title-gradient {
+  background-image: linear-gradient(100deg, #1f4f9a 0%, #3a74e0 28%, #7454f0 52%, #1595ad 76%, #1f4f9a 100%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: title-shimmer 10s linear infinite;
+  /* 텍스트 클립은 요소 상자 안에서만 칠해지므로, 글리프가 상자를 넘는 부분(숫자 위·아래, 오른쪽)이
+     잘리지 않게 칠할 영역만 넓히고 같은 크기의 음수 여백으로 배치는 그대로 둔다 */
+  padding: 0.12em 0.08em 0.12em 0.02em;
+  margin: -0.12em -0.08em -0.12em -0.02em;
+}
+@keyframes title-shimmer {
+  to {
+    background-position: -220% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .title-gradient {
+    animation: none;
+  }
+}
+
+/* 지원 분야 배경 빛줄기: 왼쪽 글 영역은 옅게 해서 읽기 편하게 */
+.hyper-backdrop-canvas {
+  /* 모바일은 글이 화면 전체에 깔리므로 전체를 옅게 */
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.25));
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.25));
+}
+@media (min-width: 1024px) {
+  .hyper-backdrop-canvas {
+    -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.22) 38%, #000 58%);
+    mask-image: linear-gradient(to right, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0.22) 38%, #000 58%);
+  }
+}
+
+/* 모바일 주소창 대응: 무대는 주소창이 접혔을 때의 높이(lvh)로 고정해 바닥에 틈이 생기지 않게 하고,
+   글은 주소창이 펼쳐져 있어도 보이는 영역(svh) 안에 둔다. 두 높이 모두 스크롤 중에 변하지 않는다 */
+.hy-stick {
+  height: 100lvh;
+  padding-bottom: calc(5rem + 100lvh - 100svh);
+}
+.hyper-backdrop-stick {
+  /* lvh를 모르는 브라우저용 */
+  height: 100vh;
+  height: 100lvh;
 }

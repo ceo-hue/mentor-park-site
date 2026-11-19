@@ -24,7 +24,7 @@ export function GuidesScene() {
     });
     ScrollTrigger.batch(q("[data-card]"), {
       start: "top 88%",
-      onEnter: (els) => gsap.from(els, { y: 60, opacity: 0, rotate: 1.5, stagger: 0.12, duration: 0.9, ease: "power3.out" }),
+      onEnter: (els) => gsap.from(els, { y: 28, opacity: 0, stagger: 0.12, duration: 0.75, ease: "power3.out" }),
       once: true,
     });
     // 카드 머리의 번호가 카드보다 느리게 움직여 깊이를 만든다
@@ -36,8 +36,7 @@ export function GuidesScene() {
   return (
     <section id="m-guides" ref={ref} className="relative px-6 py-24 md:px-14 lg:px-20">
       <div data-head className="max-w-3xl">
-        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">{resources.kicker}</p>
-        <h2 className="mt-3 text-[clamp(1.8rem,4.4vw,3.2rem)] font-black leading-tight tracking-[-0.03em]">{resources.title}</h2>
+        <h2 className="motion-heading"><span className="title-gradient">{resources.title}</span></h2>
         <p className="mt-3 text-base leading-relaxed text-mute">{resources.intro}</p>
       </div>
 
@@ -46,7 +45,7 @@ export function GuidesScene() {
         {guides.map((g, i) => {
           const isOpen = open === g.id;
           return (
-            <article key={g.id} data-card className="overflow-hidden rounded-[1.75rem] border border-ink/10 bg-white/90 shadow-[0_30px_60px_-40px_rgba(30,60,130,0.5)] backdrop-blur">
+            <article key={g.id} data-card className="motion-surface overflow-hidden">
               <div className="holo relative flex h-28 items-end overflow-hidden px-5 pb-3 md:px-6" aria-hidden="true">
                 <span data-parallax className="font-display text-[5.5rem] leading-none text-white/90 drop-shadow-[0_8px_20px_rgba(40,80,160,0.25)]">
                   0{i + 1}
@@ -54,9 +53,9 @@ export function GuidesScene() {
                 <span className="dots absolute inset-0 opacity-40" />
               </div>
               <div className="p-5 md:p-6">
-                <p className="font-mono text-[11px] tracking-[0.2em] text-planet">0{i + 1} · {g.title}</p>
-                <h3 className="mt-2 text-xl font-black leading-snug">{g.guideTitle}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-mute">{g.summary}</p>
+                <p className="motion-kicker">{g.title}</p>
+                <h3 className="mt-2 text-xl font-black leading-snug lg:min-h-14 xl:min-h-0">{g.guideTitle}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-mute lg:min-h-[4.25rem] xl:min-h-[2.875rem]">{g.summary}</p>
                 <button
                   type="button"
                   aria-expanded={isOpen}

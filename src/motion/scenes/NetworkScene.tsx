@@ -52,8 +52,7 @@ export function NetworkScene() {
       <div className="flex h-full flex-col justify-center lg:pt-16">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
-            <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">{network.kicker}</p>
-            <h2 className="mt-3 max-w-2xl text-[clamp(1.8rem,4.4vw,3.2rem)] font-black leading-tight tracking-[-0.03em]">{network.title}</h2>
+            <h2 className="motion-heading max-w-2xl"><span className="title-gradient">{network.title}</span></h2>
           </div>
           <div className="flex items-end gap-6">
             <span className="relative hidden h-[clamp(4rem,8vw,7rem)] w-[clamp(9rem,16vw,14rem)] overflow-hidden lg:block" aria-hidden="true">
@@ -90,7 +89,7 @@ export function NetworkScene() {
                 <div className="space-y-2 lg:mt-3">
                   {items.length === 0 && <p className="text-xs text-mute/70 lg:text-center">—</p>}
                   {items.map((n) => (
-                    <div key={n.role} data-node className="rounded-xl border border-ink/10 bg-white/90 p-2.5 shadow-sm backdrop-blur">
+                      <div key={n.role} data-node className="motion-surface p-3 [--surface-radius:0.9rem]">
                       <p className="text-[13px] font-black leading-snug">
                         {n.url ? (
                           <a href={n.url} target="_blank" rel="noopener noreferrer" className="underline decoration-ink/25 underline-offset-4 hover:decoration-ink">

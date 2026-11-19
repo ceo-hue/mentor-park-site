@@ -1,21 +1,28 @@
 "use client";
 
 import { brand, cta, leader, research } from "../content";
-import { Chars, gsap, useScene } from "../engine";
-import { OrbitSymbol } from "./Symbol";
+import { gsap, useScene } from "../engine";
+import { BrandLogo } from "@/components/ui/LogoMark";
 
-/** 6. 리더십 + 문의 — 스크롤 속도에 따라 흐르는 거대 문장, 글자 단위로 떠오르는 CTA */
+/** 실무 가이드 카드의 위쪽 띠: 홀로그램 색 + 점 무늬 + 큰 흰 글자 */
+function HoloBand({ label }: { label: string }) {
+  return (
+    <div className="holo relative flex h-28 items-end overflow-hidden px-6 pb-3 md:h-32 md:px-8" aria-hidden="true">
+      <span className="font-display text-[clamp(3.75rem,7vw,5.5rem)] leading-none text-white/90 drop-shadow-[0_8px_20px_rgba(40,80,160,0.25)]">
+        {label}
+      </span>
+      <span className="dots absolute inset-0 opacity-40" />
+    </div>
+  );
+}
+
+/** 운영자 소개와 첫 상담으로 이어지는 문의 영역 */
 export function ContactScene() {
   const ref = useScene((root) => {
     const q = gsap.utils.selector(root);
-    gsap.fromTo(
-      q("[data-marquee]"),
-      { xPercent: 0 },
-      { xPercent: -45, ease: "none", scrollTrigger: { trigger: root, start: "top bottom", end: "bottom top", scrub: 0.6 } }
-    );
-    gsap.from(q("[data-cta] [data-char]"), {
+    gsap.from(q("[data-cta] [data-line]"), {
       yPercent: 110,
-      stagger: 0.02,
+      stagger: 0.12,
       duration: 0.9,
       ease: "expo.out",
       scrollTrigger: { trigger: q("[data-cta]")[0], start: "top 80%" },
@@ -34,47 +41,63 @@ export function ContactScene() {
 
   return (
     <section id="m-contact" ref={ref} className="relative overflow-hidden pt-24 pb-10">
-      <div className="overflow-hidden whitespace-nowrap" aria-hidden="true">
-        <p data-marquee className="font-display text-[clamp(5rem,16vw,15rem)] leading-[0.85] tracking-tight text-ink">
-          {cta.marquee} — {cta.marquee} —
-        </p>
-      </div>
-
-      <div className="mt-14 grid gap-12 px-6 md:px-14 lg:grid-cols-[1fr_1.1fr] lg:px-20">
-        <div data-up className="rounded-[2rem] border border-ink/10 bg-white/85 p-6 backdrop-blur md:p-8">
-          <p className="font-mono text-[11px] tracking-[0.3em] text-planet">LEADERSHIP</p>
-          <div className="mt-4 flex items-center gap-4">
-            <div className="w-16 shrink-0">
-              <OrbitSymbol className="h-auto w-full" spin={false} />
-            </div>
-            <div>
-              <p className="text-2xl font-black tracking-tight">{leader.name}</p>
-              <p className="text-sm font-semibold text-planet">{leader.role}</p>
+      <div className="grid items-start gap-6 px-6 md:px-14 lg:grid-cols-[0.82fr_1.18fr] lg:px-20">
+        <div data-up className="motion-surface overflow-hidden">
+          {/* 실무 가이드 카드와 같은 홀로그램 띠 + 흰 글자 하나 */}
+          <HoloBand label="MENTOR" />
+          <div className="px-6 pt-6 md:px-8 md:pt-7">
+            <p className="motion-kicker">멘토 소개</p>
+            <div className="mt-4 flex items-center gap-5">
+              <BrandLogo className="w-28 shrink-0 md:w-32" />
+              <div>
+                <p className="text-2xl font-black tracking-tight">{leader.name}</p>
+                <p className="text-sm font-semibold text-planet-ink">{leader.role}</p>
+              </div>
             </div>
           </div>
-          <p className="mt-4 text-base leading-relaxed text-mute">{leader.body}</p>
-          <p className="mt-3 rounded-xl bg-sky-1/80 px-4 py-3 text-sm leading-relaxed text-ink/80">{research}</p>
+          <div className="px-6 pt-4 pb-6 md:px-8 md:pb-8">
+            <p className="text-base leading-relaxed text-mute">{leader.body}</p>
+            <p className="mt-3 rounded-xl bg-sky-1/80 px-4 py-3 text-sm leading-relaxed text-ink/80">{research}</p>
+          </div>
         </div>
 
-        <div>
-          <h2 data-cta className="text-[clamp(2rem,5vw,3.8rem)] font-black leading-[1.1] tracking-[-0.03em]">
-            {cta.title.map((l) => (
-              <span key={l} className="block overflow-hidden pb-1">
-                <Chars text={l} />
-              </span>
-            ))}
-          </h2>
-          <p data-up className="mt-4 max-w-lg text-base leading-relaxed text-mute">{cta.body}</p>
+        <div className="motion-surface overflow-hidden">
+          <HoloBand label="CONTACT" />
+          <div className="px-6 pt-7 pb-5 md:px-10 md:pt-9 md:pb-6">
+            <h2 data-cta aria-label={cta.title.join(" ")} className="motion-heading">
+              {cta.title.map((l) => (
+                <span key={l} className="block overflow-hidden pb-1 last:text-planet-ink">
+                  <span data-line className="title-gradient block">{l}</span>
+                </span>
+              ))}
+            </h2>
+          </div>
+          <div className="px-6 pb-6 md:px-10 md:pb-10">
+          <p data-up className="max-w-lg text-base leading-relaxed text-mute">{cta.body}</p>
           <div data-up className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <a href={mail} className="inline-flex items-center justify-center gap-3 rounded-full bg-ink px-8 py-4 text-lg font-bold text-white transition-colors hover:bg-planet">
+            <a
+              href={`tel:${brand.phone.replace(/\./g, "")}`}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-3 text-base font-bold tabular-nums transition-colors hover:border-planet-ink hover:text-planet-ink"
+            >
+              <span aria-hidden="true">☎</span>
+              {brand.phone}
+            </a>
+            <a
+              href={`mailto:${brand.email}`}
+              className="inline-flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-white px-5 py-3 text-base font-bold transition-colors hover:border-planet-ink hover:text-planet-ink"
+            >
+              <span aria-hidden="true">✉</span>
+              {brand.email}
+            </a>
+            <a
+              href={mail}
+              className="inline-flex items-center justify-center gap-3 rounded-full bg-ink px-6 py-3 text-base font-bold text-white transition-colors hover:bg-planet-ink"
+            >
               {cta.button}
               <span aria-hidden="true">→</span>
             </a>
-            <a href={`tel:${brand.phone.replace(/\./g, "")}`} className="inline-flex items-center justify-center rounded-full border border-ink/15 bg-white/80 px-6 py-4 font-display text-xl tracking-wide hover:border-planet">
-              {brand.phone}
-            </a>
           </div>
-          <p data-up className="mt-3 font-mono text-sm text-mute">{brand.email}</p>
+          </div>
         </div>
       </div>
 
