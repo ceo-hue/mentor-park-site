@@ -122,7 +122,7 @@ function Backdrop() {
 /* 거대 워드마크: 행성 뒤에 놓여 유리를 통해 굴절되어 보인다             */
 /* ------------------------------------------------------------------ */
 function useWordmarkTexture() {
-  const [tex, setTex] = useState<THREE.CanvasTexture | null>(null);
+  const [tex, setTex] = useState<{ tex: THREE.CanvasTexture; aspect: number } | null>(null);
   useEffect(() => {
     let alive = true;
     const fam =
@@ -130,27 +130,41 @@ function useWordmarkTexture() {
     const draw = () => {
       if (!alive) return;
       const W = 2600;
-      const H = 1500;
+      const [l1, l2] = brand.nameEn.split(" ");
+      // 1) 폭에 맞는 글자 크기 계산
+      const probe = document.createElement("canvas").getContext("2d")!;
+      let size = 900;
+      probe.font = `400 ${size}px ${fam}`;
+      const widest = Math.max(probe.measureText(l1).width, probe.measureText(l2).width);
+      size = Math.floor((size * (W * 0.96)) / widest);
+      probe.font = `400 ${size}px ${fam}`;
+      // 2) 실제 글자 윤곽(위·아래 끝)을 재서 캔버스 높이를 정한다 — 글자 윗부분이 잘리지 않도록
+      const m1 = probe.measureText(l1);
+      const m2 = probe.measureText(l2);
+      const pad = size * 0.06;
+      const gap = size * 0.05;
+      const H = Math.ceil(
+        pad * 2 +
+          m1.actualBoundingBoxAscent + m1.actualBoundingBoxDescent +
+          gap +
+          m2.actualBoundingBoxAscent + m2.actualBoundingBoxDescent
+      );
       const c = document.createElement("canvas");
       c.width = W;
       c.height = H;
       const ctx = c.getContext("2d")!;
-      const [l1, l2] = brand.nameEn.split(" ");
-      let size = 900;
-      ctx.font = `400 ${size}px ${fam}`;
-      const widest = Math.max(ctx.measureText(l1).width, ctx.measureText(l2).width);
-      size = Math.floor((size * (W * 0.98)) / widest);
       ctx.font = `400 ${size}px ${fam}`;
       ctx.fillStyle = "#0a0f1c";
       ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      const lh = size * 0.86;
-      ctx.fillText(l1, W / 2, H / 2 - lh / 2);
-      ctx.fillText(l2, W / 2, H / 2 + lh / 2);
+      ctx.textBaseline = "alphabetic";
+      const y1 = pad + m1.actualBoundingBoxAscent;
+      const y2 = y1 + m1.actualBoundingBoxDescent + gap + m2.actualBoundingBoxAscent;
+      ctx.fillText(l1, W / 2, y1);
+      ctx.fillText(l2, W / 2, y2);
       const t = new THREE.CanvasTexture(c);
       t.colorSpace = THREE.SRGBColorSpace;
       t.anisotropy = 8;
-      setTex(t);
+      setTex({ tex: t, aspect: H / W });
     };
     document.fonts.load(`400 200px ${fam}`).then(draw, draw);
     return () => {
@@ -161,16 +175,17 @@ function useWordmarkTexture() {
 }
 
 function Wordmark() {
-  const tex = useWordmarkTexture();
+  const word = useWordmarkTexture();
   const ref = useRef<THREE.Mesh>(null);
   const mat = useRef<THREE.MeshBasicMaterial>(null);
   const { camera, viewport } = useThree();
   const z = -1.6;
   const vp = viewport.getCurrentViewport(camera, new THREE.Vector3(0, 0, z));
   const wide = viewport.aspect > 1.05;
+  const aspect = word?.aspect ?? 0.55;
   // 폭과 높이 모두에 맞춰 화면 안에 들어오게 (데스크톱은 높이의 54% 이내)
-  const w = Math.min(vp.width * (wide ? 0.8 : 0.96), ((vp.height * (wide ? 0.54 : 0.4)) * 2600) / 1500);
-  const h = (w * 1500) / 2600;
+  const w = Math.min(vp.width * (wide ? 0.8 : 0.96), (vp.height * (wide ? 0.54 : 0.4)) / aspect);
+  const h = w * aspect;
   useFrame((_, delta) => {
     if (!ref.current || !mat.current) return;
     const t = Math.min(scene.t, 1.5);
@@ -180,11 +195,11 @@ function Wordmark() {
     mat.current.opacity = THREE.MathUtils.damp(mat.current.opacity, intro * (1 - Math.min(1, scene.t * 1.4)), 3, delta);
     ref.current.visible = mat.current.opacity > 0.01;
   });
-  if (!tex) return null;
+  if (!word) return null;
   return (
     <mesh ref={ref} position={[0, 0, z]} renderOrder={-5}>
       <planeGeometry args={[w, h]} />
-      <meshBasicMaterial ref={mat} map={tex} transparent opacity={0} depthWrite={false} toneMapped={false} />
+      <meshBasicMaterial ref={mat} map={word.tex} transparent opacity={0} depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
