@@ -153,12 +153,14 @@ export function HyperScene() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stickRef = useRef<HTMLDivElement>(null);
+  const washRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const section = sectionRef.current!;
     const backdrop = backdropRef.current!;
     const canvas = canvasRef.current!;
     const stick = stickRef.current!;
+    const washEl = washRef.current!;
     const problemWrap = document.getElementById("m-problem-wrap");
     const problemContent = document.querySelector<HTMLElement>("#m-problem > div");
     const motionOn = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -216,6 +218,7 @@ export function HyperScene() {
         uDark: { value: 0 },
         uPhase: { value: 0 },
         uCenter: { value: new THREE.Vector2() },
+        uClip: { value: new THREE.Vector3(0, 0, -1) },
         uSA: { value: new THREE.Color("#83a9ed") },
         uSB: { value: new THREE.Color("#c695e9") },
       },
@@ -322,6 +325,7 @@ export function HyperScene() {
     let hyInit = false;
     let drawn = false;
     let lastNight = -1;
+    let revealR = 0; // 남색(검정) 원의 반지름(px). 빛줄기는 이 원 안에만
     let lastCurtain = -1;
     let wasDark = false;
     let last = performance.now();
@@ -337,10 +341,16 @@ export function HyperScene() {
       const u = -hyTop / vh; // 섹션 안에서 내려온 화면 수
       // 첫 0.4화면은 그대로 두고, 0.4~0.9화면에서 한 번에 뒤집는다 (반쯤 남은 중간 상태를 만들지 않는다)
       const flip = motionOn ? smooth((u - 0.4) / 0.5) : Number(u > 0.6);
-      // 행성 재등장: 4.6~5.6화면에 가운데서 0 → 원래 크기
-      const exit = smooth((u - 4.6) / 1.0);
-      // 통과: 5.6~7화면에 행성이 점점 빨라지며 커져 화면 밖으로 지나간다
-      const fly = Math.pow(clamp((u - 5.6) / 1.4, 0, 1), 2.2);
+      // 행성 재등장: 4.6~5.4화면에 가운데서 0 → 원래 크기
+      const exit = smooth((u - 4.6) / 0.8);
+      // 통과: 5.4~6.4화면에 행성이 점점 빨라지며 커지고, 오른쪽 아래 화면 밖으로 완전히 빠져나간다
+      const fly = Math.pow(clamp((u - 5.4) / 1.0, 0, 1), 2);
+      // 행성이 빠지는 동안(5.9~6.25화면) 마지막 문구가 사라진다
+      const textFade = motionOn ? smooth((u - 5.9) / 0.35) : Number(u > 6.1);
+      // 6.3~6.75화면: 검은 공간이 페이지의 밝은 톤으로 바뀐다. 중간의 회색 구간은 짧게 지나가도록 가운데를 가파르게
+      const wash = motionOn ? smooth(smooth((u - 6.3) / 0.45)) : Number(u > 6.6);
+      // 6.9~7.2화면: 무대가 사라지며 같은 톤 아래의 두 번째 페이지가 제자리에서 드러난다
+      const leave = motionOn ? smooth((u - 6.9) / 0.3) : Number(u > 7);
 
       // 행성의 화면 위치(쉬는 자리). 남색 원은 이 점에서 퍼진다
       const desktop = W >= 768;
@@ -362,34 +372,36 @@ export function HyperScene() {
         backdrop.style.setProperty("--open-frame", String(1 - flip));
         // 남색은 투명도로 서서히가 아니라, 행성 중심에서 원으로 퍼진다
         const r = flip <= 0 ? 0 : lerp(diameter * 0.5, farthest + 8, flip);
+        revealR = r;
         backdrop.style.setProperty("--reveal-r", `${r}px`);
         backdrop.style.setProperty("--reveal-x", `${cxPx}px`);
         backdrop.style.setProperty("--reveal-y", `${cyPx}px`);
       }
       // 행성 크기 (반전 때는 원 속으로 작아지고, 마지막에는 가운데서 다시 커져 지나간다)
-      const planetFactor = exit > 0 ? exit * lerp(1, 18, fly) : 1 - flip;
+      const planetFactor = exit > 0 ? exit * lerp(1, 7, fly) : 1 - flip;
       if (!hyInit || !motionOn) {
         hyScale = planetFactor;
         hyInit = true;
       } else hyScale = damp(hyScale, planetFactor, 32, dt);
 
-      // 다음 장면은 행성 안쪽에서 원으로 열린다: 원의 반지름은 커지는 행성 반지름을 따라간다
-      const halfDiag = Math.hypot(W / 2, vh / 2);
-      const open = fly > 0 ? (diameter / 2) * hyScale * 0.86 : 0;
-      const covered = open >= halfDiag;
-      if (open !== lastCurtain) {
-        lastCurtain = open;
-        // 무대(첫 화면 전체)에 원형 구멍을 내서 뒤의 두 번째 페이지가 보이게 한다
-        stick.style.setProperty("--hole", `${Math.min(open, halfDiag + 8)}px`);
+      // 톤 전환과 무대 퇴장
+      if (wash !== lastCurtain) {
+        lastCurtain = wash;
+        washEl.style.opacity = String(wash);
       }
-      // 구멍으로 보이는 동안 두 번째 페이지는 위로 밀려 올라오지 않고 제자리에 머문다
+      stick.style.opacity = leave > 0 ? String(1 - leave) : "";
+      if (textFade > 0) stick.style.setProperty("--stage-fade", String(1 - textFade));
+      else stick.style.removeProperty("--stage-fade");
+      section.style.pointerEvents = leave >= 1 ? "none" : "";
+      const covered = wash >= 1; // 밝은 톤이 다 덮으면 그리지 않는다
+      // 톤이 바뀌는 동안 두 번째 페이지는 위로 밀려 올라오지 않고 제자리에 머문다
       if (problemContent) {
         const pTop = problemWrap ? problemWrap.getBoundingClientRect().top : 0;
-        if (open > 0 && pTop > 0) problemContent.style.transform = `translateY(${-pTop}px)`;
+        if (wash > 0 && pTop > 0) problemContent.style.transform = `translateY(${-pTop}px)`;
         else if (problemContent.style.transform) problemContent.style.transform = "";
       }
-      // 원이 왼쪽 제목까지 덮은 뒤에 글자를 흰색으로, 밝은 원이 화면 절반을 넘으면 다시 어둡게
-      const dark = flip > 0.8 && open < vh * 0.5 && rect.bottom > 0 && hyTop < vh * 0.5;
+      // 원이 왼쪽 제목까지 덮은 뒤에 글자를 흰색으로, 밝은 톤으로 바뀌기 시작하면 다시 어둡게
+      const dark = flip > 0.8 && wash < 0.5 && rect.bottom > 0 && hyTop < vh * 0.5;
       stick.classList.toggle("on-dark", dark);
       if (dark !== wasDark) {
         wasDark = dark;
@@ -411,16 +423,21 @@ export function HyperScene() {
         const rest = (diameter * wH) / vh / 2;
         hy.scale.setScalar(Math.max(rest * hyScale, 1e-4));
         hy.visible = hyScale > 0.01;
-        if (exit > 0) hy.position.set(0, 0, zH);
+        // 마지막에는 가운데서 커지며 오른쪽 아래로 화면 밖까지 지나간다 (고리까지 완전히 빠지도록 멀리)
+        // 모바일은 화면이 좁아 옆으로 가면 바로 사라지므로, 주로 아래로 빠진다
+        if (exit > 0) hy.position.set(fly * (desktop ? 2.4 : 0.7) * wW, -fly * (desktop ? 1.2 : 1.35) * wH, zH);
         else hy.position.set(restX * wW, restY * wH, zH);
         hy.rotation.set(0, (flip + exit + fly) * rad(180), 0);
         planetMaterial.uniforms.uOpacity.value = 1;
 
         // 빛줄기는 남색 위에서만
-        const lightOpacity = smooth((flip - 0.5) / 0.5) * 0.9 * (1 - exit * 0.7);
+        // 행성이 빠져나가면 줄기가 다시 살아나 '통과한 공간'을 보여 주고, 밝은 톤으로 바뀌며 사라진다
+        const lightOpacity = smooth((flip - 0.5) / 0.5) * (1 - (exit - fly) * 0.7) * (1 - wash);
         light.visible = lightOpacity > 0;
         lightMaterial.uniforms.uOpacity.value = lightOpacity;
         lightMaterial.uniforms.uDark.value = 1;
+        // 원이 화면을 다 덮기 전에는 흰 면 위로 줄기가 새지 않게 원 안으로 자른다
+        lightMaterial.uniforms.uClip.value.set(cxPx * pr, (H - cyPx) * pr, revealR >= farthest ? -1 : revealR * pr);
         lightMaterial.uniforms.iTime.value = 2 * clamp((vh - hyTop) / (rect.height + vh), 0, 1);
 
         renderer.setClearColor(0x000000, 0);
@@ -440,6 +457,8 @@ export function HyperScene() {
       backdrop.style.removeProperty("--open-frame");
       if (problemWrap) problemWrap.style.marginTop = "";
       if (problemContent) problemContent.style.transform = "";
+      stick.style.opacity = "";
+      section.style.pointerEvents = "";
       backdrop.style.removeProperty("--reveal-r");
       backdrop.style.removeProperty("--reveal-x");
       backdrop.style.removeProperty("--reveal-y");
@@ -513,6 +532,8 @@ export function HyperScene() {
           <div className="hy-big" data-big="D" />
           <p className="hy-caption">{hyper.stage2.ko}</p>
         </div>
+        {/* 행성이 빠진 뒤 무대 전체를 페이지의 밝은 톤으로 바꾸는 층 */}
+        <div ref={washRef} className="hy-wash" />
       </div>
     </section>
   );

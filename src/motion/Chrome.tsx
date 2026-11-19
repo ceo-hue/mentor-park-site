@@ -50,20 +50,22 @@ export function Chrome() {
   }, []);
 
   // 첫 화면이 남색으로 반전된 동안 헤더도 어둡게
-  const [dark, setDark] = useState(false);
+  const [heroDark, setHeroDark] = useState(false);
   useEffect(() => {
-    const on = (e: Event) => setDark(Boolean((e as CustomEvent<boolean>).detail));
+    const on = (e: Event) => setHeroDark(Boolean((e as CustomEvent<boolean>).detail));
     window.addEventListener("hyper-dark", on);
     return () => window.removeEventListener("hyper-dark", on);
   }, []);
 
   const chapter = chapters[active];
+  // 지원 분야도 첫 화면과 같은 어두운 톤이라 헤더를 어둡게
+  const dark = heroDark || chapter.id === "m-practice";
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-ink/5" aria-hidden="true">
         <div className="h-full origin-left bg-planet" style={{ transform: `scaleX(${progress})` }} />
       </div>
-      <header className={`fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-gradient-to-b px-6 transition-colors duration-300 md:h-20 md:px-14 lg:px-20 ${dark ? "from-[#0a0f1c] to-[#0a0f1c]/0" : "from-sky-0 to-sky-0/40"}`}>
+      <header className={`fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-gradient-to-b px-6 transition-colors duration-300 md:h-20 md:px-14 lg:px-20 ${dark ? "from-[#03050a] to-[#03050a]/0" : "from-sky-0 to-sky-0/40"}`}>
         <a href="#m-intro" className="shrink-0" aria-label={`${brand.nameKo} 처음으로`}>
           <BrandLogo className="w-28 md:w-[8.5rem]" />
         </a>

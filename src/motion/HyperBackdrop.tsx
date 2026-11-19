@@ -54,6 +54,7 @@ export function HyperBackdrop({
         uDark: { value: 0 },
         uPhase: { value: 0 },
         uCenter: { value: new THREE.Vector2() },
+        uClip: { value: new THREE.Vector3(0, 0, -1) },
         uSA: { value: new THREE.Color("#83a9ed") },
         uSB: { value: new THREE.Color("#c695e9") },
       },

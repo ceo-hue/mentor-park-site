@@ -190,9 +190,9 @@ export function PracticeScene() {
   });
 
   return (
-    <section id="m-practice" ref={ref} className="relative isolate overflow-clip lg:h-svh">
-      {/* 첫 화면의 하이퍼스페이스 빛줄기 (행성 없이). 그래픽 카드 뒤에서 뻗어 나온다 */}
-      <HyperBackdrop className="-z-10" />
+    <section id="m-practice" ref={ref} className="practice-night relative isolate overflow-clip lg:h-svh">
+      {/* 첫 화면과 같은 톤: 거의 검정 바탕 + 선명한 하이퍼스페이스 빛줄기 (행성 없이). 그래픽 카드 뒤에서 뻗어 나온다 */}
+      <HyperBackdrop className="-z-10" dark={1} opacity={1} />
       <div className="relative px-6 pt-20 md:px-14 lg:absolute lg:inset-x-0 lg:top-0 lg:z-10 lg:px-20 lg:pt-24">
         <p className="motion-kicker">지원 분야</p>
       </div>

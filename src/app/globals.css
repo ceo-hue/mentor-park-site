@@ -280,6 +280,10 @@ html.lenis body {
 .hy-stage.on {
   display: grid;
 }
+/* 마지막 문구는 행성이 빠져나가는 동안 사라져, 톤 전환 때 글자가 회색 막 아래 남지 않게 한다 */
+.hy-stage {
+  opacity: var(--stage-fade, 1);
+}
 .hy-big {
   grid-column: 1 / -1;
   grid-row: 1 / -1;
@@ -492,15 +496,22 @@ html.lenis body {
   /* 투명도 대신 원으로 퍼진다: 화면의 각 지점은 흰색이거나 남색이고, 회색 중간 상태가 없다 */
   position: absolute;
   inset: 0;
-  background: radial-gradient(120% 90% at 50% 45%, #13213d 0%, #0a0f1c 62%);
+  /* 원본처럼 거의 검정의 단색: 가운데가 밝은 그라디에이션은 빛줄기 뒤에서 뿌연 막처럼 보인다 */
+  background: #03050a;
   clip-path: circle(var(--reveal-r, 0px) at var(--reveal-x, 78%) var(--reveal-y, 50%));
   pointer-events: none;
 }
-/* 첫 화면 무대의 원형 구멍: 커지는 행성 안쪽으로 뒤에 겹친 두 번째 페이지가 보인다 */
+/* 첫 화면의 끝: 행성이 빠진 뒤 무대 전체가 페이지의 밝은 톤으로 바뀐다 (그 아래 두 번째 페이지와 같은 색) */
 .hy-stick {
   pointer-events: none;
-  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 1px));
-  mask-image: radial-gradient(circle at 50% 50%, transparent var(--hole, 0px), #000 calc(var(--hole, 0px) + 1px));
+}
+.hy-wash {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: var(--color-sky-0);
+  opacity: 0;
+  pointer-events: none;
 }
 .hy-stick {
   transition: color 0.35s ease;
@@ -582,4 +593,31 @@ html.lenis body {
   /* lvh를 모르는 브라우저용 */
   height: 100vh;
   height: 100lvh;
+}
+
+/* 지원 분야: 첫 화면과 같은 톤(거의 검정). 카드 밖의 글자는 밝게, 흰 카드 안은 원래 색 그대로 */
+.practice-night {
+  /* .hy-night과 같은 색 */
+  background: #03050a;
+  color: #fff;
+}
+.practice-night .motion-surface {
+  color: var(--color-ink);
+}
+.practice-night > div > .motion-kicker,
+.practice-night [data-p-head] .text-planet-ink {
+  color: var(--color-planet-soft);
+}
+.practice-night [data-p-head] .text-mute {
+  color: rgb(255 255 255 / 0.72);
+}
+.practice-night [data-p-head] .title-gradient {
+  /* 어두운 바탕용 밝은 제목 그라디에이션 (같은 색 계열) */
+  background-image: linear-gradient(100deg, #9cc4ff 0%, #c4b5ff 30%, #8fe6dc 60%, #9cc4ff 100%);
+  background-size: 220% 100%;
+}
+.practice-night ul > li[data-p-row] {
+  border-color: rgb(255 255 255 / 0.2);
+  background: rgb(255 255 255 / 0.08);
+  color: #fff;
 }
