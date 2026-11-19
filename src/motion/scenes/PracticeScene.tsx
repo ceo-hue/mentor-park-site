@@ -1,0 +1,237 @@
+"use client";
+
+import { practices } from "../content";
+import { gsap, useScene } from "../engine";
+
+type Practice = (typeof practices)[number];
+
+/* ------------------------------------------------------------------ */
+/* 패널별 모션그래픽                                                   */
+/* ------------------------------------------------------------------ */
+
+const LOOP = ["가설", "인터뷰", "실험", "판단"];
+
+function PmfGraphic() {
+  const R = 120;
+  return (
+    <svg viewBox="-190 -170 380 340" className="h-auto w-full max-w-[26rem]" role="img" aria-label="가설, 인터뷰, 실험, 판단을 반복하는 1주일 검증 루프">
+      <circle r={R} fill="none" stroke="#0a0f1c" strokeOpacity="0.08" strokeWidth="14" />
+      <g data-pmf-arc>
+        <circle r={R} fill="none" stroke="var(--color-planet)" strokeWidth="14" strokeLinecap="round" pathLength={100} strokeDasharray="22 78" transform="rotate(-90)" />
+      </g>
+      {LOOP.map((label, i) => {
+        const a = (i / LOOP.length) * Math.PI * 2 - Math.PI / 2;
+        const x = Math.cos(a) * R;
+        const y = Math.sin(a) * R;
+        return (
+          <g key={label} data-pmf-node={i} transform={`translate(${x} ${y})`}>
+            <circle data-pmf-dot r="30" fill="#fff" stroke="var(--color-planet)" strokeWidth="4" />
+            <text y="6" textAnchor="middle" className="fill-ink text-[15px] font-bold">
+              {label}
+            </text>
+          </g>
+        );
+      })}
+      <text y="-6" textAnchor="middle" className="fill-mute font-mono text-[12px] tracking-[0.2em]">
+        1 WEEK
+      </text>
+      <text y="18" textAnchor="middle" className="fill-ink text-[17px] font-black">
+        검증 루프
+      </text>
+    </svg>
+  );
+}
+
+function DeckGraphic({ p }: { p: Practice }) {
+  return (
+    <div className="relative mx-auto h-[15rem] w-full max-w-[30rem] md:h-[18rem]" role="img" aria-label={`${p.sampleTitle}: ${p.rows.map((r) => r.label).join(", ")}`}>
+      {p.rows.map((r, i) => {
+        const k = i - (p.rows.length - 1) / 2;
+        return (
+        <div
+          key={r.label}
+          data-slide={i}
+          className="absolute left-1/2 top-1/2 w-[62%] rounded-xl border border-ink/10 bg-white p-3 shadow-[0_20px_40px_-24px_rgba(20,40,90,0.45)] md:p-4"
+          style={{ zIndex: 10 - i, transform: `translate(${-50 + k * 34}%, ${-50 + Math.abs(k) * 9}%) rotate(${k * 6}deg)` }}
+        >
+          <div className="flex items-center justify-between font-mono text-[10px] text-mute">
+            <span>{String(i + 1).padStart(2, "0")}</span>
+            <span className="h-1.5 w-8 rounded-full bg-planet/70" />
+          </div>
+          <p className="mt-2 text-sm font-black md:text-base">{r.label}</p>
+          <p className="mt-1 line-clamp-3 text-[11px] leading-snug text-mute md:text-xs">{r.value}</p>
+        </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function VibeGraphic({ p }: { p: Practice }) {
+  const prompt = p.rows[0]?.value ?? "";
+  return (
+    <div className="grid w-full max-w-[34rem] gap-3 sm:grid-cols-[1.15fr_1fr]">
+      <div className="rounded-2xl bg-ink p-4 font-mono text-[11px] leading-relaxed text-white/90 shadow-xl md:text-xs">
+        <p className="mb-2 flex gap-1.5" aria-hidden="true">
+          <span className="h-2 w-2 rounded-full bg-[#e2495b]" />
+          <span className="h-2 w-2 rounded-full bg-[#f5c451]" />
+          <span className="h-2 w-2 rounded-full bg-[#5fd38d]" />
+        </p>
+        <p className="text-planet-soft">&gt; prompt</p>
+        <p data-typed aria-label={prompt}>
+          {Array.from(prompt).map((ch, i) => (
+            <span key={i} data-ch aria-hidden="true">
+              {ch}
+            </span>
+          ))}
+        </p>
+      </div>
+      <div className="rounded-2xl border border-ink/10 bg-white p-3 shadow-xl" aria-label="가상 데이터로 만든 예약 재배정 화면">
+        <p className="font-mono text-[10px] text-mute">가상 데이터 · 데모</p>
+        <div data-slot className="mt-2 rounded-lg border-2 border-planet bg-planet/10 px-2.5 py-2 text-xs font-bold">
+          <span data-slot-state="cancel" className="hidden">14:00 · 당일 취소</span>
+          <span data-slot-state="done" className="text-planet">14:00 · 재예약 완료 ✓</span>
+        </div>
+        <ul className="mt-2 space-y-1.5 text-xs">
+          {["대기 고객 A", "대기 고객 B", "대기 고객 C"].map((c, i) => (
+            <li key={c} data-wait={i} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${i === 1 ? "border-planet bg-planet/10" : "border-ink/10"}`}>
+              <span data-radio className="grid h-3.5 w-3.5 place-items-center rounded-full border-2 border-ink/30">
+                <span data-radio-dot className={`h-1.5 w-1.5 rounded-full bg-planet ${i === 1 ? "" : "opacity-0"}`} />
+              </span>
+              {c}
+            </li>
+          ))}
+        </ul>
+        <span data-confirm className="mt-2 block rounded-lg bg-ink py-1.5 text-center text-xs font-bold text-white">
+          예약 확정
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** 패널 하나의 모션을 타임라인 at 지점부터 약 1단위 길이로 추가한다 */
+function addPanelMotion(tl: gsap.core.Timeline, panel: HTMLElement, id: string, at: number) {
+  const q = gsap.utils.selector(panel);
+  tl.from(q("[data-p-head] > *"), { y: 30, opacity: 0, stagger: 0.06, duration: 0.25, ease: "power3.out" }, at)
+    .from(q("[data-p-row]"), { x: 30, opacity: 0, stagger: 0.07, duration: 0.25, ease: "power3.out" }, at + 0.25);
+
+  if (id === "pmf") {
+    tl.fromTo(q("[data-pmf-arc]"), { rotation: -40, svgOrigin: "0 0" }, { rotation: 320, svgOrigin: "0 0", duration: 0.9, ease: "none" }, at)
+      .from(q("[data-pmf-node]"), { scale: 0, transformOrigin: "50% 50%", stagger: 0.15, duration: 0.2, ease: "back.out(2.5)" }, at + 0.05);
+    q("[data-pmf-dot]").forEach((dot, i) => {
+      tl.to(dot, { fill: "var(--color-planet)", duration: 0.08 }, at + 0.2 + i * 0.2);
+      tl.to(q(`[data-pmf-node='${i}'] text`), { fill: "#ffffff", duration: 0.08 }, at + 0.2 + i * 0.2);
+    });
+  }
+
+  if (id === "ir") {
+    const slides = q("[data-slide]");
+    const n = slides.length;
+    slides.forEach((s, i) => {
+      const k = i - (n - 1) / 2;
+      tl.fromTo(
+        s,
+        { x: 0, y: 0, xPercent: -50, yPercent: -50, rotation: 0 },
+        { x: 0, y: 0, xPercent: -50 + k * 34, yPercent: -50 + Math.abs(k) * 9, rotation: k * 6, duration: 0.45, ease: "power3.inOut" },
+        at + 0.15 + i * 0.05
+      );
+    });
+    tl.from(slides, { opacity: 0, y: 40, stagger: 0.05, duration: 0.2 }, at);
+  }
+
+  if (id === "vibe-coding") {
+    const chars = q("[data-ch]");
+    // 시작 상태: 당일 취소, 아무도 선택 안 됨
+    tl.set(q("[data-slot-state='cancel']"), { display: "inline" }, at)
+      .set(q("[data-slot-state='done']"), { display: "none" }, at)
+      .set(q("[data-slot]"), { borderColor: "#e2495b", backgroundColor: "rgba(226,73,91,0.1)" }, at)
+      .set(q("[data-wait='1']"), { borderColor: "rgba(10,15,28,0.1)", backgroundColor: "rgba(255,255,255,0)" }, at)
+      .set(q("[data-wait='1'] [data-radio-dot]"), { opacity: 0 }, at)
+      .set(q("[data-confirm]"), { backgroundColor: "rgba(10,15,28,0.15)", color: "rgba(10,15,28,0.5)" }, at);
+    tl.from(chars, { opacity: 0, duration: 0.01, stagger: 0.45 / Math.max(chars.length, 1), ease: "none" }, at + 0.05)
+      .from(q("[data-wait]"), { x: 30, opacity: 0, stagger: 0.06, duration: 0.15 }, at + 0.45)
+      .to(q("[data-wait='1']"), { borderColor: "var(--color-planet)", backgroundColor: "rgba(66,137,216,0.08)", duration: 0.08 }, at + 0.65)
+      .to(q("[data-wait='1'] [data-radio-dot]"), { opacity: 1, duration: 0.05 }, at + 0.65)
+      .to(q("[data-confirm]"), { backgroundColor: "#0a0f1c", color: "#ffffff", duration: 0.08 }, at + 0.72)
+      .set(q("[data-slot-state='cancel']"), { display: "none" }, at + 0.82)
+      .set(q("[data-slot-state='done']"), { display: "inline" }, at + 0.82)
+      .to(q("[data-slot]"), { borderColor: "var(--color-planet)", backgroundColor: "rgba(66,137,216,0.1)", duration: 0.08 }, at + 0.82)
+      .fromTo(q("[data-slot]"), { scale: 1 }, { scale: 1.06, yoyo: true, repeat: 1, duration: 0.05 }, at + 0.82);
+  }
+}
+
+/* ------------------------------------------------------------------ */
+/* 장면                                                                */
+/* ------------------------------------------------------------------ */
+
+export function PracticeScene() {
+  const ref = useScene((root, { isDesktop }) => {
+    const q = gsap.utils.selector(root);
+    const panels = q<HTMLElement>("[data-panel]");
+    const track = q<HTMLElement>("[data-track]")[0];
+
+    if (isDesktop) {
+      // 패널마다: 모션 재생(1) → 다음 패널로 이동(0.5)
+      const tl = gsap.timeline({
+        scrollTrigger: { trigger: root, start: "top top", end: `+=${panels.length * 130}%`, pin: true, scrub: 0.8 },
+        defaults: { ease: "none" },
+      });
+      panels.forEach((panel, i) => {
+        const at = i * 1.5;
+        addPanelMotion(tl, panel, panel.dataset.panel!, at);
+        if (i < panels.length - 1) {
+          tl.to(track, { xPercent: -(100 / panels.length) * (i + 1), duration: 0.5, ease: "power2.inOut" }, at + 1);
+        }
+      });
+      tl.to({}, { duration: 0.3 });
+    } else {
+      panels.forEach((panel) => {
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: panel, start: "top 75%", end: "bottom 65%", scrub: 0.8 },
+        });
+        addPanelMotion(tl, panel, panel.dataset.panel!, 0);
+      });
+    }
+  });
+
+  return (
+    <section id="m-practice" ref={ref} className="relative overflow-hidden lg:h-svh">
+      <div className="px-6 pt-20 md:px-14 lg:absolute lg:inset-x-0 lg:top-0 lg:z-10 lg:px-20 lg:pt-24">
+        <p className="font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">Practice Areas</p>
+      </div>
+      <div data-track className="flex flex-col lg:h-full lg:w-[300%] lg:flex-row">
+        {practices.map((p, i) => (
+          <article key={p.id} data-panel={p.id} className="flex min-h-svh items-center px-6 py-16 md:px-14 lg:h-full lg:min-h-0 lg:w-1/3 lg:px-20 lg:py-0">
+            <div className="grid w-full items-center gap-8 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
+              <div>
+                <div data-p-head>
+                  <p className="font-display text-[clamp(3.5rem,8vw,6.5rem)] leading-none text-planet/25">{String(i + 1).padStart(2, "0")}</p>
+                  <h2 className="mt-1 text-[clamp(2rem,5vw,3.6rem)] font-black leading-tight tracking-[-0.03em]">{p.title}</h2>
+                  <p className="mt-2 text-lg font-bold text-planet">{p.outcome}</p>
+                  <p className="mt-3 max-w-xl text-base leading-relaxed text-mute">{p.description}</p>
+                </div>
+                <ul className="mt-5 flex flex-wrap gap-2">
+                  {p.features.map((f) => (
+                    <li key={f} data-p-row className="rounded-full border border-ink/12 bg-white/85 px-3.5 py-1.5 text-sm font-semibold">
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div data-p-row className="mt-5 rounded-2xl border border-planet/25 bg-white/80 p-4 backdrop-blur">
+                  <p className="font-mono text-[10px] tracking-[0.25em] text-planet">DELIVERABLES</p>
+                  <p className="mt-1 text-sm font-bold leading-snug">{p.deliverable}</p>
+                </div>
+              </div>
+              <div className="flex justify-center">
+                {p.id === "pmf" && <PmfGraphic />}
+                {p.id === "ir" && <DeckGraphic p={p} />}
+                {p.id === "vibe-coding" && <VibeGraphic p={p} />}
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}

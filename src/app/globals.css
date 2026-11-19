@@ -12,7 +12,6 @@
   --color-planet-soft: #9cc4ff;
   --font-sans: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
     system-ui, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
-  --font-serif: var(--font-playfair), "Times New Roman", serif;
   --font-display: var(--font-anton), Impact, "Arial Narrow", sans-serif;
   --font-mono: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
 }
@@ -55,21 +54,6 @@ html.lenis body {
 .dots {
   background-image: radial-gradient(rgb(10 15 28 / 0.16) 0.9px, transparent 1.1px);
   background-size: 7px 7px;
-}
-
-/* 로고 선 그리기 */
-@keyframes draw-line {
-  from {
-    stroke-dashoffset: var(--len);
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-.draw-line {
-  stroke-dasharray: var(--len);
-  stroke-dashoffset: var(--len);
-  animation: draw-line 1.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
 }
 
 /* 섹션 진입 시 드러나는 블록 */
@@ -153,10 +137,6 @@ html.lenis body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .draw-line {
-    animation: none;
-    stroke-dashoffset: 0;
-  }
   .reveal,
   .mask-line > span {
     opacity: 1;
@@ -166,6 +146,44 @@ html.lenis body {
   .marquee,
   .holo,
   .wave-bar {
+    animation: none;
+  }
+}
+
+/* 창업 여정 지도: 궤도 위를 도는 위성 */
+@keyframes journey-dot {
+  0% {
+    left: 0%;
+  }
+  85%,
+  100% {
+    left: calc(100% - 13px);
+  }
+}
+.journey-dot {
+  animation: journey-dot 3.2s cubic-bezier(0.65, 0, 0.35, 1) 1.2s infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .journey-dot {
+    animation: none;
+    left: calc(100% - 13px);
+  }
+}
+
+/* 모션 샘플: 스크롤 안내선 */
+@keyframes scroll-cue {
+  0% {
+    transform: translateY(-100%);
+  }
+  100% {
+    transform: translateY(250%);
+  }
+}
+.scroll-cue {
+  animation: scroll-cue 1.6s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue {
     animation: none;
   }
 }

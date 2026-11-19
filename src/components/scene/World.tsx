@@ -6,7 +6,7 @@ import { Billboard, Environment, Lightformer, MeshTransmissionMaterial } from "@
 import * as THREE from "three";
 import { LOGO } from "@/lib/logo";
 import { emit, explodeAmount, now, scene } from "@/lib/sceneStore";
-import { brand, satelliteCount } from "@/content/site";
+import { satelliteCount } from "@/content/site";
 
 const SAT_KEYS = Array.from({ length: satelliteCount }, (_, i) => i);
 
@@ -16,10 +16,10 @@ const SAT_KEYS = Array.from({ length: satelliteCount }, (_, i) => i);
 type Pose = { x: number; y: number; s: number; align: number; spin: number };
 // 순서는 content/site.ts의 sections와 같다
 const POSES_WIDE: Pose[] = [
-  { x: 0.0, y: 0.09, s: 0.9, align: 0, spin: 0 }, // manifesto: 거대 워드마크 앞 중앙
-  { x: 0.0, y: 0.08, s: 0.72, align: 0, spin: 0.2 }, // hold: FEAR · TRUST 사이
+  { x: 0.0, y: 0.02, s: 0.5, align: 0, spin: 0 }, // manifesto: 워드마크와 소개 문구 사이
+  { x: 0.34, y: 0.29, s: 0.36, align: 1, spin: 0.2 }, // orbit: 기능 수만큼 위성 정렬
   { x: 0.4, y: 0.34, s: 0.28, align: 0, spin: 0.3 }, // paradox: 오른쪽 위로 작게
-  { x: 0.25, y: 0.0, s: 0.85, align: 1, spin: 0.4 }, // orbit: 기능 수만큼 위성 정렬
+  { x: 0.0, y: 0.08, s: 0.72, align: 0, spin: 0.4 }, // hold: IDEA · TEST 사이
   { x: 0.37, y: 0.32, s: 0.3, align: 0.6, spin: 0.5 }, // process
   { x: -0.38, y: 0.34, s: 0.28, align: 0.2, spin: 0.6 }, // proof
   { x: 0.38, y: 0.32, s: 0.3, align: 0, spin: 0.7 }, // insight
@@ -28,10 +28,10 @@ const POSES_WIDE: Pose[] = [
   { x: 0.0, y: -0.56, s: 1.5, align: 0, spin: 1.0 }, // contact: 아래로 짐
 ];
 const POSES_NARROW: Pose[] = [
-  { x: 0, y: 0.14, s: 0.95, align: 0, spin: 0 },
-  { x: 0, y: 0.13, s: 0.75, align: 0, spin: 0.2 },
+  { x: 0, y: 0.02, s: 0.95, align: 0, spin: 0 },
+  { x: 0.18, y: 0.32, s: 0.42, align: 1, spin: 0.2 },
   { x: 0.3, y: 0.4, s: 0.28, align: 0, spin: 0.3 },
-  { x: 0.18, y: 0.36, s: 0.42, align: 1, spin: 0.4 },
+  { x: 0, y: 0.13, s: 0.75, align: 0, spin: 0.4 },
   { x: 0.3, y: 0.4, s: 0.28, align: 0.6, spin: 0.5 },
   { x: -0.3, y: 0.4, s: 0.28, align: 0.2, spin: 0.6 },
   { x: 0.3, y: 0.4, s: 0.28, align: 0, spin: 0.7 },
@@ -114,92 +114,6 @@ function Backdrop() {
             gl_FragColor = vec4(col, 1.0);
           }`}
       />
-    </mesh>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* 거대 워드마크: 행성 뒤에 놓여 유리를 통해 굴절되어 보인다             */
-/* ------------------------------------------------------------------ */
-function useWordmarkTexture() {
-  const [tex, setTex] = useState<{ tex: THREE.CanvasTexture; aspect: number } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    const fam =
-      getComputedStyle(document.documentElement).getPropertyValue("--font-anton").trim() || "Impact";
-    const draw = () => {
-      if (!alive) return;
-      const W = 2600;
-      const [l1, l2] = brand.nameEn.split(" ");
-      // 1) 폭에 맞는 글자 크기 계산
-      const probe = document.createElement("canvas").getContext("2d")!;
-      let size = 900;
-      probe.font = `400 ${size}px ${fam}`;
-      const widest = Math.max(probe.measureText(l1).width, probe.measureText(l2).width);
-      size = Math.floor((size * (W * 0.96)) / widest);
-      probe.font = `400 ${size}px ${fam}`;
-      // 2) 실제 글자 윤곽(위·아래 끝)을 재서 캔버스 높이를 정한다 — 글자 윗부분이 잘리지 않도록
-      const m1 = probe.measureText(l1);
-      const m2 = probe.measureText(l2);
-      const pad = size * 0.06;
-      const gap = size * 0.05;
-      const H = Math.ceil(
-        pad * 2 +
-          m1.actualBoundingBoxAscent + m1.actualBoundingBoxDescent +
-          gap +
-          m2.actualBoundingBoxAscent + m2.actualBoundingBoxDescent
-      );
-      const c = document.createElement("canvas");
-      c.width = W;
-      c.height = H;
-      const ctx = c.getContext("2d")!;
-      ctx.font = `400 ${size}px ${fam}`;
-      ctx.fillStyle = "#0a0f1c";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic";
-      const y1 = pad + m1.actualBoundingBoxAscent;
-      const y2 = y1 + m1.actualBoundingBoxDescent + gap + m2.actualBoundingBoxAscent;
-      ctx.fillText(l1, W / 2, y1);
-      ctx.fillText(l2, W / 2, y2);
-      const t = new THREE.CanvasTexture(c);
-      t.colorSpace = THREE.SRGBColorSpace;
-      t.anisotropy = 8;
-      setTex({ tex: t, aspect: H / W });
-    };
-    document.fonts.load(`400 200px ${fam}`).then(draw, draw);
-    return () => {
-      alive = false;
-    };
-  }, []);
-  return tex;
-}
-
-function Wordmark() {
-  const word = useWordmarkTexture();
-  const ref = useRef<THREE.Mesh>(null);
-  const mat = useRef<THREE.MeshBasicMaterial>(null);
-  const { camera, viewport } = useThree();
-  const z = -1.6;
-  const vp = viewport.getCurrentViewport(camera, new THREE.Vector3(0, 0, z));
-  const wide = viewport.aspect > 1.05;
-  const aspect = word?.aspect ?? 0.55;
-  // 폭과 높이 모두에 맞춰 화면 안에 들어오게 (데스크톱은 높이의 54% 이내)
-  const w = Math.min(vp.width * (wide ? 0.8 : 0.96), (vp.height * (wide ? 0.54 : 0.4)) / aspect);
-  const h = w * aspect;
-  useFrame((_, delta) => {
-    if (!ref.current || !mat.current) return;
-    const t = Math.min(scene.t, 1.5);
-    const baseY = wide ? vp.height * 0.09 : vp.height * 0.14;
-    ref.current.position.y = THREE.MathUtils.damp(ref.current.position.y, baseY + t * vp.height * 0.9, 5, delta);
-    const intro = scene.started ? 1 : 0;
-    mat.current.opacity = THREE.MathUtils.damp(mat.current.opacity, intro * (1 - Math.min(1, scene.t * 1.4)), 3, delta);
-    ref.current.visible = mat.current.opacity > 0.01;
-  });
-  if (!word) return null;
-  return (
-    <mesh ref={ref} position={[0, 0, z]} renderOrder={-5}>
-      <planeGeometry args={[w, h]} />
-      <meshBasicMaterial ref={mat} map={word.tex} transparent opacity={0} depthWrite={false} toneMapped={false} />
     </mesh>
   );
 }
@@ -409,7 +323,14 @@ function Planet({ quality }: { quality: "high" | "low" }) {
     const time = state.clock.elapsedTime * (scene.reducedMotion ? 0.2 : 1);
     const wide = viewport.aspect > 1.05;
     const pose = poseAt(wide ? POSES_WIDE : POSES_NARROW, scene.t);
-    const unit = wide ? Math.min(viewport.height * 0.2, viewport.width * 0.11) : viewport.width * 0.19;
+    if (state.size.height < 660 && scene.t < 1) {
+      const heroWeight = 1 - smooth(scene.t);
+      pose.y += heroWeight * 0.08;
+      pose.s *= 1 - heroWeight * 0.5;
+    }
+    const unit = wide
+      ? Math.min(viewport.height * 0.2, viewport.width * 0.11)
+      : Math.min(viewport.height * 0.14, viewport.width * 0.19);
     intro.current = THREE.MathUtils.damp(intro.current, scene.started ? 1 : 0, 2.2, delta);
     const e = explodeAmount(now());
 
@@ -613,7 +534,6 @@ export default function World() {
       >
         <Lights />
         <Backdrop />
-        <Wordmark />
         <Fragments count={quality === "high" ? 16 : 9} />
         <Planet quality={quality} />
       </Canvas>

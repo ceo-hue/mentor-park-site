@@ -6,22 +6,21 @@ import {
   contact,
   display,
   gallery,
-  galleryUrl,
   hold,
   insights,
   manifesto,
-  orbit,
   paradox,
   person,
-  process,
   proof,
+  specialties,
 } from "@/content/site";
 import { Eyebrow, Reveal } from "../ui/Reveal";
 import { HoldButton } from "../ui/HoldButton";
 import { HoloCard } from "../ui/HoloCard";
-import { LogoMark } from "../ui/LogoMark";
+import { BrandLogo, BrandWordmark, LogoMark } from "../ui/LogoMark";
 import { Modal } from "../ui/Modal";
 import { SafeImg } from "../ui/SafeImg";
+import { ActivityTimeline, JourneyMap, ProcessFlow } from "../ui/Infographics";
 
 const pad = "px-6 md:px-16 lg:px-28";
 const giant = "font-display leading-[0.82] tracking-tight text-ink select-none";
@@ -30,7 +29,7 @@ function Marquee({ text, className = "", speed }: { text: string; className?: st
   const unit = (
     <span className="flex items-center gap-[4vw] pr-[4vw]">
       {text}
-      <LogoMark className="w-[9vw] md:w-[7vw] text-planet shrink-0" />
+      <LogoMark className="h-auto w-[9vw] md:w-[7vw] shrink-0" />
     </span>
   );
   return (
@@ -45,55 +44,42 @@ function Marquee({ text, className = "", speed }: { text: string; className?: st
   );
 }
 
-function SectionHead({ eyebrow, title, right }: { eyebrow: string; title: React.ReactNode; right?: React.ReactNode }) {
-  return (
-    <div className="flex items-end justify-between gap-6 mb-8 md:mb-12">
-      <div>
-        <Reveal>
-          <Eyebrow>{eyebrow}</Eyebrow>
-        </Reveal>
-        <Reveal as="h2" delay={0.1} className="font-black text-3xl md:text-5xl tracking-[-0.03em] leading-tight">
-          {title}
-        </Reveal>
-      </div>
-      {right && <span className="hidden md:block font-mono text-sm text-mute shrink-0">{right}</span>}
-    </div>
-  );
-}
-
-/* 0. 히어로 — 거대 워드마크(3D)가 행성 뒤에, 문장은 아래 중앙 */
+/* 0. 히어로 */
 export function Manifesto() {
   return (
     <section id="manifesto" data-scene className={`relative min-h-[150svh] ${pad}`}>
-      <div className="sticky top-0 h-svh flex flex-col items-center justify-end pb-[12svh] md:pb-[5svh] text-center">
+      <div className="sticky top-0 h-svh flex flex-col items-center justify-end pb-[12svh] md:pb-[7svh] text-center">
+        <BrandWordmark className="absolute top-[max(5.25rem,14svh)] h-auto w-[min(76vw,49svh)] md:w-[min(42vw,56svh)]" />
         <Reveal>
-          <p className="font-mono text-[10px] md:text-xs tracking-[0.3em] uppercase text-planet mb-3">
+          <p className="mb-3 text-sm font-semibold text-ink/75">
             {manifesto.eyebrow}
           </p>
         </Reveal>
-        <h1 className="font-black tracking-[-0.03em] leading-[1.08] text-[8vw] md:text-[2.8vw]">
+        <h1 className="font-black tracking-tight leading-[1.08] text-[clamp(1.55rem,6.5vw,2.75rem)]">
           {manifesto.title.map((line, i) => (
             <Reveal key={i} as="span" delay={0.1 + i * 0.12} className="block">
-              {i === 0 ? (
-                <>
-                  비즈니스의 <span className="text-planet">정체성</span>을
-                </>
-              ) : (
-                line
-              )}
+              {line}
             </Reveal>
           ))}
         </h1>
-        <Reveal as="p" delay={0.4} className="mt-3 max-w-xl text-mute text-sm leading-relaxed">
-          {manifesto.body[0]}
-          <br className="hidden md:block" /> {manifesto.body[1]}
+        <Reveal as="p" delay={0.4} className="mt-3 max-w-md text-ink/75 text-base leading-relaxed">
+          {manifesto.body}
+        </Reveal>
+        <Reveal delay={0.45} className="mt-5">
+          <nav aria-label="집중 멘토링 분야" className="flex flex-wrap justify-center gap-1.5 sm:gap-2">
+            {specialties.map((specialty) => (
+              <a key={specialty.id} href={`#${specialty.id}`} className="rounded-full border border-ink/15 bg-white/90 px-2.5 py-2 text-sm font-bold hover:bg-ink hover:text-white sm:px-4">
+                {specialty.title}
+              </a>
+            ))}
+          </nav>
         </Reveal>
       </div>
     </section>
   );
 }
 
-/* 1. 근본 질문 — 길게 누르면 파편이 다시 하나로 */
+/* 첫 고객 가설 */
 export function Hold() {
   return (
     <section id="hold" data-scene className={`relative min-h-[160svh] ${pad}`}>
@@ -125,98 +111,100 @@ export function Hold() {
   );
 }
 
-/* 2. 정체성의 역설 — FEAR / TRUST */
+/* 고객 문제 가설과 첫 실험 */
 export function Paradox() {
-  const cards = [
-    { ...paradox.fear, color: "#e2495b" },
-    { ...paradox.trust, color: "var(--color-planet)" },
-  ];
+  const cards = [paradox.hypothesis, paradox.experiment];
   return (
-    <section id="paradox" data-scene className={`relative ${pad} pt-[34svh] pb-[16svh]`}>
-      <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-        {cards.map((c, i) => (
-          <Reveal key={c.label} delay={i * 0.12}>
-            <HoloCard className="h-full">
-              <div className="p-8 md:p-12 min-h-80 flex flex-col">
-                <div className="flex items-center gap-4 mb-8">
-                  <span className="w-12 h-px" style={{ background: c.color }} />
-                  <span className="font-display text-3xl md:text-4xl tracking-wide" style={{ color: c.color }}>
-                    {c.label}
-                  </span>
-                </div>
-                <p className="text-xl md:text-3xl font-bold leading-snug tracking-[-0.02em]">{c.lead}</p>
-                <p className="mt-6 text-mute text-sm md:text-base leading-relaxed">{c.body}</p>
-              </div>
-            </HoloCard>
-          </Reveal>
-        ))}
+    <section id="paradox" data-scene className={`relative ${pad} pt-[max(5.75rem,10svh)] pb-[10svh]`}>
+      <div className="rounded-[2rem] border border-white/15 bg-ink p-5 text-white sm:p-8 lg:p-10">
+        <p className="mb-2 text-sm font-semibold text-planet-soft">가상 사례 · 1인 미용실 예약 관리</p>
+        <h2 className="text-3xl font-black tracking-tight md:text-4xl">빈 예약 시간을 다시 채울 수 있을까?</h2>
+        <div className="mt-6 grid items-start gap-7 lg:grid-cols-5">
+          <div className="lg:col-span-3">
+            <video
+              aria-label="가상 사례 시연 영상. 고객 검증부터 IR 피치·덱, 예약 재배정 흐름까지"
+              className="aspect-video w-full rounded-2xl bg-[#14253e]"
+              controls
+              playsInline
+              preload="none"
+              poster="/case/demo-poster.webp"
+            >
+              <source src="/case/startup-demo.mp4" type="video/mp4" />
+              <a href="/case/startup-demo.mp4">가상 사례 영상 열기</a>
+            </video>
+            <details className="mt-4 text-sm leading-relaxed text-white/80">
+              <summary className="w-fit cursor-pointer font-semibold text-white">영상 내용 읽기</summary>
+              <ol className="mt-2 list-decimal space-y-2 pl-5">
+                <li>고객 검증 기록표에 당일 취소 대처 방법, 다시 채운 예약 수와 처리 시간을 적습니다.</li>
+                <li>IR 덱 한 장에 문제와 해결 흐름을 담습니다. 실험이 시작되면 모을 근거도 제시합니다.</li>
+                <li>가상 MVP에서 대기 고객을 골라 빈 시간에 예약을 확정합니다. 완료된 시간에는 재확정 버튼이 비활성화됩니다.</li>
+              </ol>
+            </details>
+          </div>
+          <div className="space-y-5 lg:col-span-2">
+            {cards.map((card) => (
+              <article key={card.label} className="rounded-2xl border border-white/15 bg-white/8 p-4 sm:p-5">
+                <h3 className="text-sm font-bold text-planet-soft">{card.label}</h3>
+                <p className="mt-2 text-base font-bold leading-snug">{card.lead}</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/75">{card.body}</p>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
-      <Reveal
-        as="p"
-        delay={0.2}
-        className="mt-14 md:mt-24 text-center text-2xl md:text-4xl font-bold leading-snug tracking-[-0.03em] max-w-4xl mx-auto"
-      >
-        {paradox.conclusion.before}
-        <span className="text-planet">{paradox.conclusion.mind}</span>
-        {paradox.conclusion.middle}
-        <span className="underline decoration-[#e2495b] decoration-4 underline-offset-8">{paradox.conclusion.chain}</span>
-        {paradox.conclusion.after}
-      </Reveal>
     </section>
   );
 }
 
-/* 3. 서비스 — 기능마다 위성 하나가 고리 위에 정렬 */
+/* 집중 멘토링 분야 */
 export function Orbit() {
-  let n = 0;
   return (
-    <section id="orbit" data-scene className={`relative md:min-h-[180svh] ${pad} py-[14svh] md:py-0`}>
-      <div className="md:sticky md:top-0 md:h-svh flex md:items-center">
-        <div className="w-full md:w-[52%]">
-          <div className="flex items-end gap-4 mb-6 md:mb-8">
-            <Reveal className={`${giant} text-[20vw] md:text-[8vw] text-planet`}>
-              {String(orbit.services.length).padStart(2, "0")}
-            </Reveal>
-            <div className="pb-1">
-              <Reveal>
-                <Eyebrow>{orbit.eyebrow}</Eyebrow>
-              </Reveal>
-              <Reveal as="h2" delay={0.1} className={`${giant} text-[12vw] md:text-[4.6vw]`}>
-                {display.orbit}
-              </Reveal>
+    <section id="orbit" data-scene className={`relative ${pad} pt-[max(6rem,16svh)] pb-[5svh]`}>
+      <h2 className="text-3xl font-black tracking-tight md:text-5xl">극초기 팀을 위한 집중 멘토링</h2>
+      <p className="mt-4 max-w-2xl text-base leading-relaxed text-mute">
+        처음 만날 고객을 찾고 있거나, 투자자 앞에서 아이디어를 설명해야 하거나, 보여 줄 첫 제품이 필요하다면 지금 막힌 지점부터 시작합니다.
+      </p>
+      <JourneyMap />
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        {specialties.map((specialty) => (
+          <article key={specialty.id} id={specialty.id} tabIndex={-1} className="flex scroll-mt-24 flex-col rounded-3xl border border-ink/10 bg-white/95 p-5 shadow-sm sm:p-6">
+            <h3 className="text-2xl font-black tracking-tight sm:text-3xl">{specialty.title}</h3>
+            <p className="mt-2 text-base font-bold lg:min-h-12 xl:min-h-6">{specialty.outcome}</p>
+            <figure className="mt-4">
+              <a href={specialty.preview.src} target="_blank" rel="noopener noreferrer" className="block cursor-zoom-in rounded-xl hover:ring-2 hover:ring-planet">
+                <img
+                  src={specialty.preview.src}
+                  alt={`${specialty.preview.alt} 이미지 크게 보기 (새 창)`}
+                  width={960}
+                  height={540}
+                  loading="lazy"
+                  decoding="async"
+                  className="aspect-video w-full rounded-xl border border-ink/10 bg-sky-0 object-cover"
+                />
+              </a>
+              <figcaption className="mt-2 text-sm leading-relaxed text-mute">{specialty.deliverable}</figcaption>
+            </figure>
+            <p className="mt-4 text-base leading-relaxed text-mute">{specialty.description}</p>
+            <ul className="my-4 list-disc space-y-1.5 pl-5 text-sm marker:text-planet">
+              {specialty.features.map((feature) => <li key={feature}>{feature}</li>)}
+            </ul>
+            <div className="mt-auto">
+              <a href={`#${specialty.id}-guide`} className="inline-flex min-h-10 items-center rounded-full border border-ink/15 px-3.5 text-sm font-semibold hover:bg-ink hover:text-white">
+                {specialty.title} 가이드 보기
+              </a>
             </div>
-          </div>
-          <div className="space-y-5 md:space-y-6">
-            {orbit.services.map((s, si) => (
-              <Reveal key={s.key} delay={0.12 + si * 0.1} className="border-t border-ink pt-4">
-                <div className="flex items-baseline justify-between gap-4">
-                  <p className="text-xl md:text-3xl font-black tracking-[-0.02em]">{s.title}</p>
-                  <span className="font-mono text-[10px] md:text-xs tracking-[0.25em] text-planet shrink-0">
-                    [{s.label}]
-                  </span>
-                </div>
-                <p className="text-sm md:text-base text-mute mt-1">{s.desc}</p>
-                <ul className="mt-3 grid sm:grid-cols-2 gap-x-6 gap-y-1.5">
-                  {s.features.map((f) => {
-                    n += 1;
-                    return (
-                      <li key={f} className="flex gap-2 text-xs md:text-sm leading-snug">
-                        <span className="font-mono text-ink/35 shrink-0">{String(n).padStart(2, "0")}</span>
-                        {f}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </Reveal>
-            ))}
-          </div>
-          <Reveal delay={0.35} className="mt-6 md:mt-8 rounded-2xl bg-ink text-white p-5 md:p-6">
-            <p className="font-mono text-[10px] tracking-[0.25em] uppercase text-white/50 mb-2">
-              {orbit.objective.label}
-            </p>
-            <p className="text-base md:text-lg font-bold leading-snug">“{orbit.objective.quote}”</p>
-          </Reveal>
-        </div>
+            <div className="mt-4 border-t border-ink/10 pt-4 text-sm leading-relaxed">
+              <p className="text-mute">{specialty.reference.description}</p>
+              <a href={specialty.reference.url} className="mt-1 inline-block font-semibold underline underline-offset-4">
+                {specialty.reference.label}
+              </a>
+            </div>
+          </article>
+        ))}
+      </div>
+      <div className="mt-5 flex flex-wrap items-center gap-4 text-sm font-semibold">
+        <a href="#paradox" className="rounded-full bg-ink px-4 py-2.5 text-white hover:bg-mute">30초 사례 영상 보기</a>
+        <a href="#proof" className="underline underline-offset-4">박용근 멘토 이력 보기</a>
       </div>
     </section>
   );
@@ -225,148 +213,135 @@ export function Orbit() {
 /* 4. 멘토링 프로세스 */
 export function Process() {
   return (
-    <section id="process" data-scene className="relative pt-[24svh] pb-[14svh]">
-      <Marquee text={display.process} className={`${giant} text-[22vw] md:text-[14vw] mb-10 md:mb-14`} speed="36s" />
+    <section id="process" data-scene className="relative pt-[max(5.75rem,14svh)] pb-[12svh]">
       <div className={pad}>
-        <SectionHead eyebrow={process.eyebrow} title="진단에서 성장까지, 네 개의 궤도" right="[04 STEPS]" />
-        <ol className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          {process.steps.map((s, i) => (
-            <Reveal key={s.step} as="li" delay={i * 0.08} className={i % 2 ? "lg:translate-y-10" : ""}>
-              <HoloCard className="h-full">
-                <div className="p-6 md:p-7 min-h-60 flex flex-col">
-                  <span className="font-display text-6xl text-planet/80">{s.step}</span>
-                  <p className="mt-auto text-2xl font-black tracking-[-0.02em]">{s.title}</p>
-                  <p className="text-sm text-mute mt-2 leading-relaxed">{s.desc}</p>
-                </div>
-              </HoloCard>
-            </Reveal>
-          ))}
-        </ol>
+        <h2 className="mb-8 text-3xl font-black tracking-tight md:mb-12 md:text-5xl">멘토링 진행 과정</h2>
+        <ProcessFlow />
       </div>
     </section>
   );
 }
 
-/* 5. 검증된 이력 — 벤토 그리드 */
+/* 멘토 이력 */
 export function Proof() {
+  const groups = [
+    proof.evaluationPool,
+    { label: "멘토·전문가 활동", note: null, entries: proof.mentoring },
+  ];
   return (
-    <section id="proof" data-scene className={`relative ${pad} pt-[26svh] pb-[14svh]`}>
-      <Reveal className={`${giant} text-[13vw] md:text-[8.5vw] mb-8 md:mb-12`}>{display.proof}</Reveal>
-      <Reveal>
-        <Eyebrow>{proof.eyebrow}</Eyebrow>
-      </Reveal>
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5">
-        <Reveal className="md:col-span-8">
-          <HoloCard className="h-full">
-            <div className="p-8 md:p-12 min-h-72 flex flex-col justify-between">
-              <span className="font-mono text-xs tracking-[0.25em] uppercase text-planet">{proof.current.label}</span>
-              <h3 className="mt-6 text-3xl md:text-5xl font-black tracking-[-0.03em] leading-[1.1]">
-                {proof.current.role}
-                <br />
-                <span className="text-planet">{proof.current.title}</span>
-              </h3>
-              <p className="mt-8 text-mute md:text-lg max-w-xl">{proof.current.desc}</p>
+    <section id="proof" data-scene className={`relative ${pad} pt-[max(5.75rem,14svh)] pb-[12svh]`}>
+      <h2 className="mb-7 text-3xl font-black tracking-tight md:text-5xl">{proof.title}</h2>
+      <ActivityTimeline />
+      <div className="mt-5 grid gap-5 lg:grid-cols-12">
+        <div className="rounded-3xl border border-ink/10 bg-white/95 p-5 sm:p-7 lg:col-span-7">
+          <h3 className="text-xl font-bold">기관 공개 활동</h3>
+          <ul className="mt-2 divide-y divide-ink/10">
+            {proof.activities.map((activity) => (
+              <li key={activity.title} className="py-4 last:pb-0">
+                <a href={activity.url} className="font-bold underline decoration-ink/30 underline-offset-4 hover:decoration-ink">
+                  {activity.title}
+                </a>
+                <p className="mt-1 text-sm leading-relaxed text-mute">
+                  {activity.year && `${activity.year} · `}{activity.role}
+                </p>
+              </li>
+            ))}
+          </ul>
+          <a href="#lectures" className="mt-6 inline-block text-sm font-semibold underline underline-offset-4">
+            사업계획서 강의 영상 보기
+          </a>
+        </div>
+        <div className="rounded-3xl border border-ink/10 bg-white/95 p-5 sm:p-7 lg:col-span-5">
+          {groups.map((group) => (
+            <div key={group.label} className="border-b border-ink/10 pb-5 last:border-0 last:pb-0 [&+div]:mt-5">
+              <h3 className="text-xl font-bold">{group.label}</h3>
+              {group.note && <p className="mt-2 rounded-xl bg-sky-1 px-3.5 py-3 text-sm leading-relaxed text-ink">{group.note}</p>}
+              <ul className="mt-2">
+                {group.entries.map((entry) => (
+                  <li key={entry.name} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2 text-sm">
+                    <span>{entry.name}</span>
+                    <span className="shrink-0 text-mute">{entry.period}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-          </HoloCard>
-        </Reveal>
-        <Reveal delay={0.1} className="md:col-span-4">
-          <div className="h-full min-h-60 rounded-[28px] bg-planet text-white grid place-items-center text-center p-8 group">
-            <div>
-              <span className="font-display text-8xl md:text-9xl block group-hover:scale-110 transition-transform duration-500">
-                {proof.years.number}
-              </span>
-              <p className="mt-3 font-mono text-xs tracking-[0.3em] uppercase opacity-80">{proof.years.label}</p>
-            </div>
-          </div>
-        </Reveal>
-
-        <div className="md:col-span-12 grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-5">
-          {proof.stats.map((s, i) => (
-            <Reveal key={s.label} delay={i * 0.06}>
-              <div className="h-full rounded-[24px] bg-white/70 backdrop-blur border border-ink/10 p-6 md:p-8 group">
-                <span className="font-display text-5xl md:text-6xl text-planet block group-hover:-translate-y-1 transition-transform">
-                  {s.number}
-                </span>
-                <p className="mt-6 text-lg font-bold">{s.label}</p>
-                <p className="text-sm text-mute">{s.desc}</p>
-              </div>
-            </Reveal>
           ))}
         </div>
-
-        <Reveal className="md:col-span-5">
-          <div className="h-full rounded-[28px] bg-ink text-white p-8 md:p-10">
-            <p className="font-display text-3xl md:text-4xl leading-none mb-8">
-              PROFESSIONAL
-              <br />
-              <span className="text-planet-soft">REGISTRATIONS</span>
-            </p>
-            <ul className="space-y-3">
-              {proof.registrations.map((r) => (
-                <li key={r.name} className="flex justify-between gap-4 border-b border-white/10 pb-2.5 text-sm">
-                  <span className="text-white/75">{r.name}</span>
-                  <span className="font-mono text-[11px] text-white/45 shrink-0">{r.period}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </Reveal>
-        <Reveal delay={0.1} className="md:col-span-7">
-          <HoloCard className="h-full">
-            <div className="relative p-8 md:p-12 min-h-80 overflow-hidden">
-              <span className="font-mono text-xs tracking-[0.25em] uppercase text-[#e2495b]">{proof.specialty.label}</span>
-              <h3 className="mt-4 text-3xl md:text-4xl font-black tracking-[-0.03em]">{proof.specialty.title}</h3>
-              <p className="mt-5 text-mute md:text-lg leading-relaxed max-w-lg">{proof.specialty.desc}</p>
-              <div className="mt-8 flex flex-wrap gap-2">
-                {proof.specialty.highlights.map((h) => (
-                  <span key={h} className="px-4 py-2 rounded-full bg-white border border-ink/10 text-xs font-bold">
-                    + {h}
-                  </span>
-                ))}
-              </div>
-              <span
-                className={`${giant} absolute -right-4 -bottom-6 text-[9rem] md:text-[12rem] text-ink/[0.05] pointer-events-none`}
-                aria-hidden="true"
-              >
-                PITCH
-              </span>
-            </div>
-          </HoloCard>
-        </Reveal>
       </div>
     </section>
   );
 }
 
-/* 6. 인사이트 영상 */
+/* 6. 실무 가이드와 강의 영상 */
 export function Insight() {
   const [playing, setPlaying] = useState<(typeof insights.videos)[number] | null>(null);
   return (
-    <section id="insight" data-scene className="relative pt-[22svh] pb-[14svh]">
-      <Marquee text={display.insight} className={`${giant} text-[20vw] md:text-[12vw] mb-10 md:mb-14`} />
+    <section id="insight" data-scene className="relative pt-[max(5.75rem,14svh)] pb-[12svh]">
       <div className={pad}>
-        <SectionHead eyebrow={insights.eyebrow} title={insights.title} right={`[${String(insights.videos.length).padStart(2, "0")} VIDEOS]`} />
-        <div className="grid md:grid-cols-3 gap-5 md:gap-6">
+        <Reveal as="h2" className="text-3xl font-black tracking-tight md:text-5xl">{insights.title}</Reveal>
+        <Reveal as="p" className="mt-4 max-w-2xl text-base leading-relaxed text-mute">{insights.intro}</Reveal>
+        <div className="mt-8 grid items-start gap-4 lg:grid-cols-3">
+          {specialties.map(({ id, title, guide }) => (
+            <article key={id} id={`${id}-guide`} tabIndex={-1} className="scroll-mt-24 rounded-3xl border border-ink/10 bg-white/90 p-5 backdrop-blur sm:p-6">
+              <p className="text-sm font-bold text-mute">{title}</p>
+              <h3 className="mt-2 text-xl font-black leading-snug">{guide.title}</h3>
+              <p className="mt-3 text-base leading-relaxed text-mute">{guide.summary}</p>
+              <details className="mt-4 border-t border-ink/10 pt-3">
+                <summary className="w-fit cursor-pointer rounded-sm font-semibold hover:text-mute focus-visible:outline-2 focus-visible:outline-offset-4">
+                  {guide.sample.title} 보기
+                </summary>
+                <ol className="mt-4 list-decimal space-y-3 pl-5 text-base leading-relaxed">
+                  {guide.points.map((point) => <li key={point}>{point}</li>)}
+                </ol>
+                <div className="mt-5 rounded-2xl bg-sky-1/80 p-4">
+                  <p className="text-sm font-bold">가상 사례 · 1인 미용실 예약 관리</p>
+                  <dl className="mt-3 space-y-3 divide-y divide-ink/10 text-sm leading-relaxed">
+                    {guide.sample.rows.map((row) => (
+                      <div key={row.label} className="pb-3 last:pb-0">
+                        <dt className="font-bold">{row.label}</dt>
+                        <dd className="mt-0.5 text-mute">{row.value}</dd>
+                      </div>
+                    ))}
+                  </dl>
+                </div>
+                <a href={guide.source.url} className="mt-4 inline-block text-sm font-semibold underline underline-offset-4">
+                  {guide.source.label}
+                </a>
+              </details>
+            </article>
+          ))}
+        </div>
+        <h3 id="lectures" tabIndex={-1} className="mb-5 mt-12 scroll-mt-24 text-2xl font-black md:mt-16 md:text-3xl">{insights.videosTitle}</h3>
+        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {insights.videos.map((v, i) => {
-            const thumb = v.thumbnail ?? `https://img.youtube.com/vi/${v.id}/hqdefault.jpg`;
+            const thumb = v.thumbnail ?? (v.type === "youtube" ? `https://img.youtube.com/vi/${v.id}/hqdefault.jpg` : null);
             const inner = (
               <HoloCard className="h-full">
                 <div className="p-3">
                   <div className="relative aspect-video rounded-2xl overflow-hidden bg-sky-2">
-                    <SafeImg src={thumb} alt={v.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    {thumb ? (
+                      <SafeImg src={thumb} alt="" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+                    ) : (
+                      <div aria-hidden="true" className="grid h-full w-full place-items-center bg-sky-1">
+                        <BrandWordmark className="h-auto w-1/2 max-w-40" />
+                      </div>
+                    )}
                     {/* 썸네일은 가리지 않고 모서리에 작은 아이콘만 */}
-                    <span
-                      className="absolute right-2 bottom-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur text-ink grid place-items-center text-xs shadow-md group-hover:bg-planet group-hover:text-white group-hover:scale-110 transition"
-                      aria-hidden="true"
-                    >
-                      {v.type === "youtube" ? "▶" : "↗"}
-                    </span>
+                    {v.type === "youtube" && (
+                      <span
+                        className="absolute right-2 bottom-2 w-8 h-8 rounded-full bg-white/90 backdrop-blur text-ink grid place-items-center text-xs shadow-md group-hover:bg-ink group-hover:text-white group-hover:scale-110 transition"
+                        aria-hidden="true"
+                      >
+                        ▶
+                      </span>
+                    )}
                   </div>
                   <div className="px-3 pt-4 pb-3">
                     <p className="font-bold text-base md:text-lg leading-snug">{v.title}</p>
                     <p className="text-xs md:text-sm text-mute mt-1">{v.provider}</p>
-                    <p className="mt-4 font-mono text-[11px] tracking-[0.2em] text-ink/60 group-hover:text-planet transition-colors">
-                      {v.type === "youtube" ? "PLAY INSIGHT →" : "VIEW INSIGHT ↗"}
+                    {v.detail && <p className="mt-2 text-sm leading-relaxed text-mute">{v.detail}</p>}
+                    <p className="mt-4 text-sm font-medium text-ink/75 group-hover:text-ink transition-colors">
+                      {v.type === "youtube" ? "영상 재생" : "강의 페이지 열기"}
                     </p>
                   </div>
                 </div>
@@ -387,6 +362,18 @@ export function Insight() {
             );
           })}
         </div>
+        <details className="mt-5 rounded-2xl border border-ink/10 bg-white/85 p-5">
+          <summary className="w-fit cursor-pointer rounded-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4">
+            {insights.businessPlan.title}
+          </summary>
+          <p className="mt-3 text-base text-mute">{insights.businessPlan.summary}</p>
+          <ol className="mt-3 list-decimal space-y-2 pl-5 text-base leading-relaxed">
+            {insights.businessPlan.points.map((point) => <li key={point}>{point}</li>)}
+          </ol>
+          <a href={insights.businessPlan.source.url} className="mt-4 inline-block text-sm font-semibold underline underline-offset-4">
+            {insights.businessPlan.source.label}
+          </a>
+        </details>
       </div>
       <Modal open={!!playing} onClose={() => setPlaying(null)} label={playing?.title ?? "영상"}>
         {playing && (
@@ -405,64 +392,22 @@ export function Insight() {
   );
 }
 
-/* 7. 현장 갤러리 */
+/* 7. 기관 공개 현장 기록 */
 export function Gallery() {
-  const [selected, setSelected] = useState<(typeof gallery.images)[number] | null>(null);
-  const strip = [...gallery.images, ...gallery.images];
   return (
-    <section id="gallery" data-scene className="relative pt-[22svh] pb-[14svh] overflow-hidden">
-      <div className={pad}>
-        <SectionHead
-          eyebrow={gallery.eyebrow}
-          title={
-            <>
-              {gallery.title}
-              <span className="block text-base md:text-lg font-medium text-mute mt-2 tracking-normal">{gallery.body}</span>
-            </>
-          }
-          right={display.gallery}
-        />
-      </div>
-      <div className="mb-6 md:mb-8">
-        <div className="marquee inline-flex gap-4 pl-4" style={{ animationDuration: "50s" }}>
-          {strip.map((img, i) => (
-            <button
-              key={`${img.file}-${i}`}
-              type="button"
-              onClick={() => setSelected(img)}
-              aria-label={`${img.alt} 크게 보기`}
-              className="holo shrink-0 w-[260px] md:w-[380px] aspect-[4/3] rounded-[24px] p-[5px] group"
-            >
-              <span className="block w-full h-full rounded-[20px] overflow-hidden bg-sky-2">
-                <SafeImg src={galleryUrl(img.file, 760)} alt={img.alt} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-              </span>
-            </button>
-          ))}
-        </div>
-      </div>
-      <div className={`${pad} grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4`}>
-        {gallery.images.map((img, i) => (
-          <Reveal key={img.file} delay={(i % 4) * 0.05}>
-            <button
-              type="button"
-              onClick={() => setSelected(img)}
-              aria-label={`${img.alt} 크게 보기`}
-              className="block w-full aspect-square rounded-2xl overflow-hidden bg-sky-2 group relative"
-            >
-              <SafeImg src={galleryUrl(img.file, 480)} alt={img.alt} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
-              <span className="absolute inset-0 bg-planet/0 group-hover:bg-planet/25 transition-colors" />
-            </button>
-          </Reveal>
+    <section id="gallery" data-scene className={`relative ${pad} pt-[max(5.75rem,14svh)] pb-[12svh]`}>
+      <h2 className="text-3xl font-black tracking-tight md:text-5xl">{gallery.title}</h2>
+      <p className="mt-3 text-base text-mute">{gallery.body}</p>
+      <ul className="mt-7 grid gap-4 lg:grid-cols-3">
+        {gallery.records.map((record) => (
+          <li key={record.title} className="rounded-2xl border border-ink/10 bg-white/95 p-5">
+            <p className="text-sm font-semibold text-mute">{record.year}</p>
+            <h3 className="mt-2 text-lg font-bold">{record.title}</h3>
+            <p className="mt-2 text-sm leading-relaxed text-mute">{record.role}</p>
+            <a href={record.url} className="mt-4 inline-block text-sm font-semibold underline underline-offset-4">{record.linkLabel}</a>
+          </li>
         ))}
-      </div>
-      <Modal open={!!selected} onClose={() => setSelected(null)} label={selected?.alt ?? "사진"}>
-        {selected && (
-          <figure>
-            <SafeImg src={galleryUrl(selected.file, 1400)} alt={selected.alt} className="w-full max-h-[80vh] aspect-[4/3] object-contain rounded-2xl" />
-            <figcaption className="mt-3 text-center text-sm text-white/70">{selected.alt}</figcaption>
-          </figure>
-        )}
-      </Modal>
+      </ul>
     </section>
   );
 }
@@ -485,9 +430,6 @@ export function Person() {
               {person.role}
             </Reveal>
           </div>
-          <Reveal as="p" delay={0.22} className="mt-3 text-sm md:text-base font-bold">
-            {person.current}
-          </Reveal>
           <Reveal as="p" delay={0.26} className="mt-4 text-mute leading-relaxed">
             {person.body}
           </Reveal>
@@ -503,6 +445,9 @@ export function Person() {
               </Reveal>
             ))}
           </ul>
+          <Reveal as="p" delay={0.35} className="mt-4 text-sm leading-relaxed text-mute">
+            {person.research}
+          </Reveal>
         </div>
       </div>
     </section>
@@ -511,35 +456,25 @@ export function Person() {
 
 /* 9. 문의 */
 export function Contact() {
-  const mail = `mailto:${brand.email}?subject=${encodeURIComponent(contact.mailSubject)}`;
+  const mail = `mailto:${brand.email}?subject=${encodeURIComponent(contact.mailSubject)}&body=${encodeURIComponent(contact.mailBody)}`;
   return (
     <section id="contact" data-scene className="relative min-h-svh pt-[14svh] pb-8 flex flex-col">
       <Marquee text={display.contact} className={`${giant} text-[24vw] md:text-[15vw]`} />
       <div className={`${pad} mt-8 md:mt-12 grid md:grid-cols-2 gap-8 items-end`}>
         <div>
-          <Reveal>
-            <Eyebrow>{contact.eyebrow}</Eyebrow>
+          <Reveal as="h2" className="font-black tracking-[-0.04em] leading-[1.08] text-4xl md:text-6xl">
+            {contact.title}
           </Reveal>
-          <h2 className="font-black tracking-[-0.04em] leading-[1.08] text-4xl md:text-6xl">
-            {contact.title.map((l, i) => (
-              <Reveal key={i} as="span" delay={0.1 + i * 0.1} className="block">
-                {l}
-              </Reveal>
-            ))}
-          </h2>
-          <Reveal as="p" delay={0.3} className="mt-4 max-w-md text-mute">
-            {contact.body[0]}
-            <br />
-            {contact.body[1]}
+          <Reveal as="p" delay={0.3} className="mt-4 max-w-md text-mute leading-relaxed">
+            {contact.body}
           </Reveal>
         </div>
         <Reveal delay={0.35} className="flex flex-col gap-3 md:items-end">
           <a
             href={mail}
-            className="group inline-flex items-center justify-between gap-6 px-8 py-5 rounded-full bg-planet text-white text-lg md:text-xl font-bold hover:bg-ink transition-colors"
+            className="inline-flex justify-center px-8 py-5 rounded-full bg-ink text-white text-lg md:text-xl font-bold hover:bg-mute transition-colors"
           >
             {contact.cta}
-            <span className="group-hover:translate-x-1 transition-transform">→</span>
           </a>
           <div className="flex flex-col sm:flex-row gap-3">
             <a
@@ -557,12 +492,12 @@ export function Contact() {
           </div>
         </Reveal>
       </div>
-      <footer className={`${pad} mt-auto pt-20 flex flex-col md:flex-row md:items-end justify-between gap-2 font-mono text-[11px] text-ink/70`}>
-        <p>
-          <span className="font-serif font-bold text-planet tracking-[0.04em] mr-2">{brand.nameEn}</span>
-          {brand.nameKo} · 대표 {person.name} · {brand.address}
-        </p>
-        <p>© {new Date().getFullYear()} {brand.nameEn}. All rights reserved.</p>
+      <footer className={`${pad} mt-auto pt-20 pb-12 flex flex-col md:flex-row md:items-end justify-between gap-3 text-sm text-ink/75`}>
+        <div>
+          <BrandLogo className="w-36" />
+          <p className="mt-2">대표 {person.name} · {brand.address}</p>
+        </div>
+        <p>© {new Date().getFullYear()} {brand.nameEn}</p>
       </footer>
     </section>
   );

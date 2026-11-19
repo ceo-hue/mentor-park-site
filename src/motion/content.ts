@@ -1,0 +1,168 @@
+/**
+ * 메인 사이트(/, 기업형 모션그래픽)의 콘텐츠.
+ * 사실 정보(서비스, 진행 과정, 기관 이력, 연락처)는 모두 src/content/site.ts에서 가져온다.
+ * 이 파일에는 기업형 어조의 문장과 장면 구성만 둔다. 숫자·고객사·성과를 새로 만들지 않는다.
+ */
+import { brand, person, process, proof, specialties } from "@/content/site";
+import { insights as siteInsights, person as sitePerson, paradox as siteParadox } from "@/content/site";
+
+export { brand };
+
+export const hero = {
+  kicker: "Early-stage Startup Validation Partner",
+  lines: ["WE DESIGN", "THE FIRST", "ORBIT."],
+  ko: "온에어플래닛은 극초기 스타트업이 첫 고객, 첫 투자자 미팅, 첫 MVP에 도달하도록 검증의 순서를 설계합니다.",
+};
+
+/** 1. 문제 — 세 갈래로 엉킨 질문이 하나의 궤도로 정렬된다 */
+export const problem = {
+  kicker: "The Problem",
+  before: ["아이디어는 있는데", "무엇부터 확인해야 할지", "모를 때."],
+  after: ["검증할 순서를 정하면", "궤도가 생깁니다."],
+  tracks: [
+    { key: "customer", label: "고객", question: "누가, 어떤 상황에서 불편을 겪는가" },
+    { key: "investor", label: "투자자", question: "무엇을 근거로 설득할 것인가" },
+    { key: "product", label: "제품", question: "가장 먼저 보여 줄 기능은 무엇인가" },
+  ],
+};
+
+/** 2. 방법론 — 기존 4단계 진행 과정을 궤도 체계로 */
+const methodKeys = ["OBSERVE", "TARGET", "DRAFT", "VALIDATE"] as const;
+export const method = {
+  kicker: "Our Method",
+  title: "4개의 궤도로 일합니다",
+  steps: process.steps.map((s, i) => ({ ...s, key: methodKeys[i] })),
+};
+
+/** 3. 사업 영역 — 세 가지 실무 프랙티스 */
+export const practices = specialties.map((s) => ({
+  id: s.id,
+  title: s.title,
+  outcome: s.outcome,
+  description: s.description,
+  features: [...s.features],
+  deliverable: s.deliverable,
+  sampleTitle: s.guide.sample.title,
+  rows: s.guide.sample.rows.map((r) => ({ ...r })),
+  source: s.guide.source,
+}));
+
+/** 4. 가상 사례 — 1인 미용실 예약 재배정 */
+export const caseStudy = {
+  kicker: "Case Simulation",
+  label: "가상 사례 · 실제 고객사가 아닙니다",
+  title: "빈 예약 한 칸을 다시 채우는 일주일",
+  hypothesis: "당일 예약이 취소되면 1인 미용실은 빈 시간을 다시 채우기 어렵다.",
+  steps: ["취소 발생", "대기 고객 확인", "한 명에게 제안", "재예약 확정"],
+  measures: ["취소 건수", "대기 고객에게 연락한 건수", "다시 채운 건수", "처리 시간"],
+  outputs: ["고객 검증 기록표", "IR 덱 문제·해결 슬라이드", "예약 재배정 MVP"],
+};
+
+/** 5. 기관 네트워크 — proof 데이터를 연도 순으로 */
+type NetworkNode = { year: number; org: string; role: string; url?: string };
+
+function firstYear(text: string | null | undefined) {
+  const m = text?.match(/(\d{4})/);
+  return m ? Number(m[1]) : null;
+}
+
+const orgOf = (name: string) =>
+  name
+    .replace(/\s*(예비창업패키지 전담멘토|창업전문가|평가위원|평가·심의위원|창업전문기업)?\s*풀 등록$/, "")
+    .replace(/ 수료$/, "")
+    .trim();
+
+export const network = {
+  kicker: "Institutional Network",
+  title: "공공·대학 창업 생태계와 함께 일해 왔습니다",
+  note: proof.evaluationPool.note,
+  nodes: ([
+    ...proof.mentoring.map((e) => ({ year: firstYear(e.period), org: orgOf(e.name), role: e.name })),
+    ...proof.evaluationPool.entries.map((e) => ({ year: firstYear(e.period), org: orgOf(e.name), role: e.name })),
+    ...proof.activities.map((a) => ({ year: firstYear(a.year), org: a.title, role: a.role, url: a.url })),
+  ].filter((n) => n.year !== null) as NetworkNode[]).sort((a, b) => a.year - b.year),
+};
+
+export const leader = {
+  name: person.name,
+  role: person.role,
+  body: person.body,
+};
+
+export const cta = {
+  marquee: "FIND YOUR FIRST ORBIT",
+  title: ["첫 상담에서", "검증할 순서를 정합니다."],
+  body: "현재 단계와 가장 막히는 일을 알려 주세요. 인터뷰 기록, IR 덱 또는 데모가 있다면 함께 보내 주세요.",
+  button: "프로젝트 문의하기",
+  subject: "온에어플래닛 프로젝트 문의",
+};
+
+export const chapters = [
+  { id: "m-hero", label: "INTRO", nav: false },
+  { id: "m-problem", label: "PROBLEM", nav: false },
+  { id: "m-method", label: "METHOD", nav: true },
+  { id: "m-hyper", label: "PRINCIPLES", nav: false },
+  { id: "m-practice", label: "PRACTICE", nav: true },
+  { id: "m-case", label: "CASE", nav: true },
+  { id: "m-film", label: "FILM", nav: false },
+  { id: "m-guides", label: "GUIDES", nav: true },
+  { id: "m-network", label: "NETWORK", nav: true },
+  { id: "m-contact", label: "CONTACT", nav: false },
+] as const;
+
+/* ------------------------------------------------------------------ */
+/* 기존 사이트 콘텐츠 연결                                              */
+/* ------------------------------------------------------------------ */
+
+/** 하이퍼스페이스 — 행성이 화면을 채우며 일하는 원칙을 선언한다 */
+export const hyper = {
+  stage1: ["TEST", "WITH", "CARE"],
+  stage2: ["BUILD", "WITH", "EVIDENCE"],
+  stage4: ["EVIDENCE", "ALWAYS."],
+  // 기존 사이트의 실무 가이드에서 뽑은 원칙 (문장은 짧게 줄였고 뜻은 바꾸지 않았다)
+  principles: [
+    "최근에 겪은 상황부터 묻습니다.",
+    "실험 전에 판단 기준을 정합니다.",
+    "슬라이드마다 주장 하나, 근거 하나.",
+    "핵심 흐름 하나가 동작하는 MVP부터.",
+    "공개 전에 개인정보와 권한을 확인합니다.",
+  ],
+};
+
+/** 분야별 실무 가이드 (기존 사이트 specialties.guide) */
+export const guides = specialties.map((s) => ({
+  id: s.id,
+  title: s.title,
+  guideTitle: s.guide.title,
+  summary: s.guide.summary,
+  points: [...s.guide.points],
+  sample: { title: s.guide.sample.title, rows: s.guide.sample.rows.map((r) => ({ ...r })) },
+  source: s.guide.source,
+  preview: s.preview,
+  reference: s.reference,
+}));
+
+export const film = {
+  kicker: "Case Film",
+  title: "30초 시연 영상",
+  label: "가상 사례 · 1인 미용실 예약 관리",
+  src: "/case/startup-demo.mp4",
+  poster: "/case/demo-poster.webp",
+  transcript: [
+    "고객 검증 기록표에 당일 취소 대처 방법, 다시 채운 예약 수와 처리 시간을 적습니다.",
+    "IR 덱 한 장에 문제와 해결 흐름을 담습니다. 실험이 시작되면 모을 근거도 제시합니다.",
+    "가상 MVP에서 대기 고객을 골라 빈 시간에 예약을 확정합니다. 완료된 시간에는 재확정 버튼이 비활성화됩니다.",
+  ],
+  experiment: siteParadox.experiment,
+};
+
+export const resources = {
+  kicker: "Field Guides",
+  title: siteInsights.title,
+  intro: siteInsights.intro,
+  videosTitle: siteInsights.videosTitle,
+  videos: siteInsights.videos.map((v) => ({ ...v })),
+  businessPlan: siteInsights.businessPlan,
+};
+
+export const research = sitePerson.research;

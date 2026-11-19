@@ -57,13 +57,15 @@ export function ScrollDriver() {
 
     // 앵커 링크를 Lenis로 이동
     const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
       const a = (e.target as HTMLElement).closest("a[href^='#']");
       if (!a) return;
-      const id = a.getAttribute("href")!;
-      const target = id.length > 1 ? document.querySelector<HTMLElement>(id) : null;
+      const target = document.getElementById(a.getAttribute("href")!.slice(1));
       if (target) {
         e.preventDefault();
-        lenis.scrollTo(target, { offset: 0 });
+        if (target.hasAttribute("tabindex")) target.focus({ preventScroll: true });
+        const offset = Number.parseFloat(getComputedStyle(target).scrollMarginTop) || 0;
+        lenis.scrollTo(target, { offset: -offset, immediate: scene.reducedMotion });
       }
     };
     document.addEventListener("click", onClick);

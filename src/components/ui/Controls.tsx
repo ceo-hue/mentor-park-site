@@ -45,47 +45,41 @@ export function Customizer() {
   const [open, setOpen] = useState(false);
   return (
     <div className="fixed right-4 bottom-4 md:right-8 md:bottom-8 z-40">
-      {/* 모바일: 접힌 원형 버튼 */}
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
+        aria-controls="planet-colors"
         aria-label="행성 색 바꾸기"
-        className={`md:hidden w-11 h-11 rounded-full bg-ink grid place-items-center shadow-xl ${open ? "hidden" : ""}`}
+        className="grid size-11 place-items-center rounded-full bg-ink shadow-xl"
       >
         <span className="w-5 h-5 rounded-full" style={{ background: accent }} />
       </button>
-      <div
-        className={`${open ? "block" : "hidden"} md:block rounded-2xl bg-ink text-white p-3 shadow-2xl shadow-black/20`}
-        onClick={() => setOpen(false)}
-      >
-      <div className="flex gap-2">
-        {ACCENTS.map((a) => (
+      <div id="planet-colors" hidden={!open} className="absolute bottom-full right-0 mb-2 rounded-2xl bg-ink p-3 text-white shadow-2xl shadow-black/20">
+        <div className="flex gap-2">
+          {ACCENTS.map((a) => (
+            <button
+              key={a.hex}
+              type="button"
+              onClick={() => setAccent(a.hex)}
+              aria-label={`행성 색: ${a.name}`}
+              aria-pressed={accent === a.hex}
+              className={`h-7 w-10 rounded-full transition-transform md:w-12 ${
+                accent === a.hex ? "ring-2 ring-white ring-offset-2 ring-offset-ink scale-105" : "hover:scale-105"
+              }`}
+              style={{ background: a.hex }}
+            />
+          ))}
+        </div>
+        <div className="mt-2 flex justify-end">
           <button
-            key={a.hex}
             type="button"
-            onClick={() => setAccent(a.hex)}
-            aria-label={`행성 색: ${a.name}`}
-            aria-pressed={accent === a.hex}
-            className={`h-7 w-10 md:w-12 rounded-full transition-transform ${
-              accent === a.hex ? "ring-2 ring-white ring-offset-2 ring-offset-ink scale-105" : "hover:scale-105"
-            }`}
-            style={{ background: a.hex }}
-          />
-        ))}
-      </div>
-      <div className="mt-2 flex items-center justify-between px-1">
-        <button
-          type="button"
-          onClick={() => setAccent(ACCENTS[0].hex)}
-          className="text-white/60 hover:text-white text-sm"
-          aria-label="색 초기화"
-        >
-          ↺
-        </button>
-        <span className="font-mono text-[10px] tracking-[0.3em] text-white/70">CUSTOMIZE ME</span>
-        <span className="w-3" />
-      </div>
+            onClick={() => setAccent(ACCENTS[0].hex)}
+            className="min-h-8 px-1 text-sm text-white/75 hover:text-white"
+          >
+            기본 색으로
+          </button>
+        </div>
       </div>
     </div>
   );
