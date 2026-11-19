@@ -4,9 +4,9 @@ import { brand } from "@/content/site";
 import { LogoMark } from "./LogoMark";
 
 const links = [
-  { href: "#orbit", label: "ORBIT" },
-  { href: "#proof", label: "SIGNALS" },
-  { href: "#contact", label: "CONTACT" },
+  { href: "#orbit", label: "SERVICE" },
+  { href: "#insight", label: "INSIGHT" },
+  { href: "#contact", label: "상담예약" },
 ];
 
 export function Header() {

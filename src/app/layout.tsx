@@ -20,8 +20,10 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ONAIR PLANET | 온에어플래닛",
-  description: "온에어플래닛 — 비즈니스의 궤도를 설계합니다.",
+  title: "ONAIR PLANET | 박용근 멘토 · 비즈니스 정체성 아키텍트",
+  description:
+    "정보는 AI가, 결정은 통찰이. 온에어플래닛 대표 박용근 — 중장년 기술창업 전문 멘토, IR 피칭과 ARHA 기반 비즈니스 정체성 설계.",
+  keywords: ["박용근", "온에어플래닛", "ONAIR PLANET", "멘토", "창업", "IR 피칭", "사업계획서", "ARHA", "한성대학교"],
 };
 
 export const viewport: Viewport = {

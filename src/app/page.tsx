@@ -5,7 +5,18 @@ import { ScrollDriver } from "@/components/ScrollDriver";
 import { Gate } from "@/components/ui/Gate";
 import { Header } from "@/components/ui/Header";
 import { Customizer, Rulers, SoundToggle } from "@/components/ui/Controls";
-import { Contact, Hold, Manifesto, Orbit, Person, Proof } from "@/components/sections/Sections";
+import {
+  Contact,
+  Gallery,
+  Hold,
+  Insight,
+  Manifesto,
+  Orbit,
+  Paradox,
+  Person,
+  Process,
+  Proof,
+} from "@/components/sections/Sections";
 
 const World = dynamic(() => import("@/components/scene/World"), { ssr: false });
 
@@ -22,8 +33,12 @@ export default function Home() {
       <main className="relative z-10 overflow-x-clip">
         <Manifesto />
         <Hold />
+        <Paradox />
         <Orbit />
+        <Process />
         <Proof />
+        <Insight />
+        <Gallery />
         <Person />
         <Contact />
       </main>

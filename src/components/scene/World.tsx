@@ -6,26 +6,37 @@ import { Billboard, Environment, Lightformer, MeshTransmissionMaterial } from "@
 import * as THREE from "three";
 import { LOGO } from "@/lib/logo";
 import { emit, explodeAmount, now, scene } from "@/lib/sceneStore";
-import { brand, orbit } from "@/content/site";
+import { brand, satelliteCount } from "@/content/site";
+
+const SAT_KEYS = Array.from({ length: satelliteCount }, (_, i) => i);
 
 /* ------------------------------------------------------------------ */
 /* 섹션별 행성 자세. x·y는 화면 폭·높이 대비, s는 기본 크기 배수        */
 /* ------------------------------------------------------------------ */
 type Pose = { x: number; y: number; s: number; align: number; spin: number };
+// 순서는 content/site.ts의 sections와 같다
 const POSES_WIDE: Pose[] = [
   { x: 0.0, y: 0.09, s: 0.9, align: 0, spin: 0 }, // manifesto: 거대 워드마크 앞 중앙
-  { x: 0.0, y: 0.08, s: 0.72, align: 0, spin: 0.2 }, // hold
-  { x: 0.24, y: 0.0, s: 0.85, align: 1, spin: 0.4 }, // orbit
-  { x: 0.36, y: 0.3, s: 0.38, align: 0.3, spin: 0.6 }, // proof
-  { x: -0.26, y: 0.04, s: 0.62, align: 0, spin: 0.8 }, // person
-  { x: 0.0, y: -0.56, s: 1.5, align: 0, spin: 1.0 }, // contact
+  { x: 0.0, y: 0.08, s: 0.72, align: 0, spin: 0.2 }, // hold: FEAR · TRUST 사이
+  { x: 0.4, y: 0.34, s: 0.28, align: 0, spin: 0.3 }, // paradox: 오른쪽 위로 작게
+  { x: 0.25, y: 0.0, s: 0.85, align: 1, spin: 0.4 }, // orbit: 기능 수만큼 위성 정렬
+  { x: 0.37, y: 0.32, s: 0.3, align: 0.6, spin: 0.5 }, // process
+  { x: -0.38, y: 0.34, s: 0.28, align: 0.2, spin: 0.6 }, // proof
+  { x: 0.38, y: 0.32, s: 0.3, align: 0, spin: 0.7 }, // insight
+  { x: 0.0, y: 0.34, s: 0.32, align: 0, spin: 0.75 }, // gallery
+  { x: -0.26, y: 0.04, s: 0.62, align: 0, spin: 0.85 }, // person
+  { x: 0.0, y: -0.56, s: 1.5, align: 0, spin: 1.0 }, // contact: 아래로 짐
 ];
 const POSES_NARROW: Pose[] = [
   { x: 0, y: 0.14, s: 0.95, align: 0, spin: 0 },
   { x: 0, y: 0.13, s: 0.75, align: 0, spin: 0.2 },
+  { x: 0.3, y: 0.4, s: 0.28, align: 0, spin: 0.3 },
   { x: 0.18, y: 0.36, s: 0.42, align: 1, spin: 0.4 },
-  { x: 0.28, y: 0.4, s: 0.3, align: 0.3, spin: 0.6 },
-  { x: 0, y: 0.3, s: 0.5, align: 0, spin: 0.8 },
+  { x: 0.3, y: 0.4, s: 0.28, align: 0.6, spin: 0.5 },
+  { x: -0.3, y: 0.4, s: 0.28, align: 0.2, spin: 0.6 },
+  { x: 0.3, y: 0.4, s: 0.28, align: 0, spin: 0.7 },
+  { x: -0.3, y: 0.4, s: 0.28, align: 0, spin: 0.75 },
+  { x: 0, y: 0.3, s: 0.5, align: 0, spin: 0.85 },
   { x: 0, y: -0.48, s: 1.3, align: 0, spin: 1.0 },
 ];
 
@@ -376,7 +387,7 @@ function Planet({ quality }: { quality: "high" | "low" }) {
   const solids = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
   const intro = useRef(0);
   const { viewport, pointer } = useThree();
-  const satSeeds = useMemo(() => orbit.items.map(() => Math.random() * Math.PI * 2), []);
+  const satSeeds = useMemo(() => SAT_KEYS.map(() => Math.random() * Math.PI * 2), []);
   const tmp = useMemo(() => new THREE.Color(), []);
 
   useFrame((state, delta) => {
@@ -425,7 +436,7 @@ function Planet({ quality }: { quality: "high" | "low" }) {
     const n = sats.current.length;
     sats.current.forEach((m, i) => {
       if (!m) return;
-      const free = satSeeds[i] + time * (0.15 + i * 0.05);
+      const free = satSeeds[i] + time * (0.15 + i * 0.03);
       const aligned = (i / n) * Math.PI * 2 + time * 0.12;
       const a = free + (aligned - free) * pose.align;
       m.position.set(Math.cos(a) * LOGO.ringRadius, Math.sin(a) * LOGO.ringRadius, 0);
@@ -524,8 +535,8 @@ function Planet({ quality }: { quality: "high" | "low" }) {
             <sphereGeometry args={[LOGO.moonRadius, 32, 32]} />
             {solid(1, 0.7)}
           </mesh>
-          {orbit.items.map((it, i) => (
-            <mesh key={it.key} ref={(m) => void (sats.current[i] = m)} scale={0.001}>
+          {SAT_KEYS.map((i) => (
+            <mesh key={i} ref={(m) => void (sats.current[i] = m)} scale={0.001}>
               <sphereGeometry args={[LOGO.moonRadius * 0.85, 24, 24]} />
               <meshStandardMaterial color="#ffffff" metalness={0.9} roughness={0.15} envMapIntensity={2} />
             </mesh>
