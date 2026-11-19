@@ -1,9 +1,7 @@
 "use client";
 
-import { practices } from "../content";
+import { irDeck, mvpBuild, practices } from "../content";
 import { gsap, useScene } from "../engine";
-
-type Practice = (typeof practices)[number];
 
 /* ------------------------------------------------------------------ */
 /* 패널별 모션그래픽                                                   */
@@ -42,33 +40,33 @@ function PmfGraphic() {
   );
 }
 
-function DeckGraphic({ p }: { p: Practice }) {
+function DeckGraphic() {
   return (
-    <div className="relative mx-auto h-[15rem] w-full max-w-[30rem] md:h-[18rem]" role="img" aria-label={`${p.sampleTitle}: ${p.rows.map((r) => r.label).join(", ")}`}>
-      {p.rows.map((r, i) => {
-        const k = i - (p.rows.length - 1) / 2;
+    <div className="relative mx-auto h-[15rem] w-full max-w-[30rem] md:h-[18rem]" role="img" aria-label={`IR 덱 구성: ${irDeck.map((r) => r.label).join(", ")}`}>
+      {irDeck.map((r, i) => {
+        const k = i - (irDeck.length - 1) / 2;
         return (
-        <div
-          key={r.label}
-          data-slide={i}
-          className="absolute left-1/2 top-1/2 w-[62%] rounded-xl border border-ink/10 bg-white p-3 shadow-[0_20px_40px_-24px_rgba(20,40,90,0.45)] md:p-4"
-          style={{ zIndex: 10 - i, transform: `translate(${-50 + k * 34}%, ${-50 + Math.abs(k) * 9}%) rotate(${k * 6}deg)` }}
-        >
-          <div className="flex items-center justify-between font-mono text-[10px] text-mute">
-            <span>{String(i + 1).padStart(2, "0")}</span>
-            <span className="h-1.5 w-8 rounded-full bg-planet/70" />
+          <div
+            key={r.label}
+            data-slide={i}
+            className="absolute left-1/2 top-1/2 w-[62%] rounded-xl border border-ink/10 bg-white p-3 shadow-[0_20px_40px_-24px_rgba(20,40,90,0.45)] md:p-4"
+            style={{ zIndex: 10 - i, transform: `translate(${-50 + k * 34}%, ${-50 + Math.abs(k) * 9}%) rotate(${k * 6}deg)` }}
+          >
+            <div className="flex items-center justify-between font-mono text-[10px] text-mute">
+              <span>{String(i + 1).padStart(2, "0")}</span>
+              <span className="h-1.5 w-8 rounded-full bg-planet/70" />
+            </div>
+            <p className="mt-2 text-sm font-black md:text-base">{r.label}</p>
+            <p className="mt-1 line-clamp-3 text-[11px] leading-snug text-mute md:text-xs">{r.value}</p>
           </div>
-          <p className="mt-2 text-sm font-black md:text-base">{r.label}</p>
-          <p className="mt-1 line-clamp-3 text-[11px] leading-snug text-mute md:text-xs">{r.value}</p>
-        </div>
         );
       })}
     </div>
   );
 }
 
-function VibeGraphic({ p }: { p: Practice }) {
-  const prompt = p.rows[0]?.value ?? "";
+function VibeGraphic() {
+  const { prompt, checks } = mvpBuild;
   return (
     <div className="grid w-full max-w-[34rem] gap-3 sm:grid-cols-[1.15fr_1fr]">
       <div className="rounded-2xl bg-ink p-4 font-mono text-[11px] leading-relaxed text-white/90 shadow-xl md:text-xs">
@@ -86,24 +84,20 @@ function VibeGraphic({ p }: { p: Practice }) {
           ))}
         </p>
       </div>
-      <div className="rounded-2xl border border-ink/10 bg-white p-3 shadow-xl" aria-label="가상 데이터로 만든 예약 재배정 화면">
-        <p className="font-mono text-[10px] text-mute">가상 데이터 · 데모</p>
-        <div data-slot className="mt-2 rounded-lg border-2 border-planet bg-planet/10 px-2.5 py-2 text-xs font-bold">
-          <span data-slot-state="cancel" className="hidden">14:00 · 당일 취소</span>
-          <span data-slot-state="done" className="text-planet">14:00 · 재예약 완료 ✓</span>
-        </div>
+      <div className="rounded-2xl border border-ink/10 bg-white p-3 shadow-xl">
+        <p className="font-mono text-[10px] text-mute">MVP 통과 기준</p>
         <ul className="mt-2 space-y-1.5 text-xs">
-          {["대기 고객 A", "대기 고객 B", "대기 고객 C"].map((c, i) => (
-            <li key={c} data-wait={i} className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${i === 1 ? "border-planet bg-planet/10" : "border-ink/10"}`}>
-              <span data-radio className="grid h-3.5 w-3.5 place-items-center rounded-full border-2 border-ink/30">
-                <span data-radio-dot className={`h-1.5 w-1.5 rounded-full bg-planet ${i === 1 ? "" : "opacity-0"}`} />
+          {checks.map((c, i) => (
+            <li key={c} data-check-row={i} className="flex items-center gap-2 rounded-lg border border-planet/40 bg-planet/10 px-2.5 py-2 font-semibold">
+              <span data-check-box className="grid h-4 w-4 shrink-0 place-items-center rounded bg-planet text-[10px] text-white" aria-hidden="true">
+                ✓
               </span>
               {c}
             </li>
           ))}
         </ul>
-        <span data-confirm className="mt-2 block rounded-lg bg-ink py-1.5 text-center text-xs font-bold text-white">
-          예약 확정
+        <span data-ready className="mt-2 block rounded-lg bg-ink py-1.5 text-center text-xs font-bold text-white">
+          데모 준비 완료
         </span>
       </div>
     </div>
@@ -142,22 +136,21 @@ function addPanelMotion(tl: gsap.core.Timeline, panel: HTMLElement, id: string, 
 
   if (id === "vibe-coding") {
     const chars = q("[data-ch]");
-    // 시작 상태: 당일 취소, 아무도 선택 안 됨
-    tl.set(q("[data-slot-state='cancel']"), { display: "inline" }, at)
-      .set(q("[data-slot-state='done']"), { display: "none" }, at)
-      .set(q("[data-slot]"), { borderColor: "#e2495b", backgroundColor: "rgba(226,73,91,0.1)" }, at)
-      .set(q("[data-wait='1']"), { borderColor: "rgba(10,15,28,0.1)", backgroundColor: "rgba(255,255,255,0)" }, at)
-      .set(q("[data-wait='1'] [data-radio-dot]"), { opacity: 0 }, at)
-      .set(q("[data-confirm]"), { backgroundColor: "rgba(10,15,28,0.15)", color: "rgba(10,15,28,0.5)" }, at);
+    // 시작 상태: 아무것도 통과하지 않음
+    tl.set(q("[data-check-row]"), { borderColor: "rgba(10,15,28,0.1)", backgroundColor: "rgba(255,255,255,0)" }, at)
+      .set(q("[data-check-box]"), { backgroundColor: "rgba(10,15,28,0.12)", color: "rgba(255,255,255,0)" }, at)
+      .set(q("[data-ready]"), { backgroundColor: "rgba(10,15,28,0.15)", color: "rgba(10,15,28,0.5)" }, at);
     tl.from(chars, { opacity: 0, duration: 0.01, stagger: 0.45 / Math.max(chars.length, 1), ease: "none" }, at + 0.05)
-      .from(q("[data-wait]"), { x: 30, opacity: 0, stagger: 0.06, duration: 0.15 }, at + 0.45)
-      .to(q("[data-wait='1']"), { borderColor: "var(--color-planet)", backgroundColor: "rgba(66,137,216,0.08)", duration: 0.08 }, at + 0.65)
-      .to(q("[data-wait='1'] [data-radio-dot]"), { opacity: 1, duration: 0.05 }, at + 0.65)
-      .to(q("[data-confirm]"), { backgroundColor: "#0a0f1c", color: "#ffffff", duration: 0.08 }, at + 0.72)
-      .set(q("[data-slot-state='cancel']"), { display: "none" }, at + 0.82)
-      .set(q("[data-slot-state='done']"), { display: "inline" }, at + 0.82)
-      .to(q("[data-slot]"), { borderColor: "var(--color-planet)", backgroundColor: "rgba(66,137,216,0.1)", duration: 0.08 }, at + 0.82)
-      .fromTo(q("[data-slot]"), { scale: 1 }, { scale: 1.06, yoyo: true, repeat: 1, duration: 0.05 }, at + 0.82);
+      .from(q("[data-check-row]"), { x: 30, opacity: 0, stagger: 0.06, duration: 0.15 }, at + 0.4);
+    q("[data-check-row]").forEach((row, i) => {
+      const t = at + 0.55 + i * 0.07;
+      tl.to(row, { borderColor: "rgba(66,137,216,0.4)", backgroundColor: "rgba(66,137,216,0.1)", duration: 0.05 }, t).to(
+        row.querySelector("[data-check-box]"),
+        { backgroundColor: "var(--color-planet)", color: "#ffffff", duration: 0.05 },
+        t
+      );
+    });
+    tl.to(q("[data-ready]"), { backgroundColor: "#0a0f1c", color: "#ffffff", duration: 0.08 }, at + 0.88);
   }
 }
 
@@ -225,8 +218,8 @@ export function PracticeScene() {
               </div>
               <div className="flex justify-center">
                 {p.id === "pmf" && <PmfGraphic />}
-                {p.id === "ir" && <DeckGraphic p={p} />}
-                {p.id === "vibe-coding" && <VibeGraphic p={p} />}
+                {p.id === "ir" && <DeckGraphic />}
+                {p.id === "vibe-coding" && <VibeGraphic />}
               </div>
             </div>
           </article>

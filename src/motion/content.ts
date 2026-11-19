@@ -4,7 +4,7 @@
  * 이 파일에는 기업형 어조의 문장과 장면 구성만 둔다. 숫자·고객사·성과를 새로 만들지 않는다.
  */
 import { brand, person, process, proof, specialties } from "@/content/site";
-import { insights as siteInsights, person as sitePerson, paradox as siteParadox } from "@/content/site";
+import { insights as siteInsights, person as sitePerson } from "@/content/site";
 
 export { brand };
 
@@ -42,20 +42,22 @@ export const practices = specialties.map((s) => ({
   description: s.description,
   features: [...s.features],
   deliverable: s.deliverable,
-  sampleTitle: s.guide.sample.title,
-  rows: s.guide.sample.rows.map((r) => ({ ...r })),
   source: s.guide.source,
 }));
 
-/** 4. 가상 사례 — 1인 미용실 예약 재배정 */
-export const caseStudy = {
-  kicker: "Case Simulation",
-  label: "가상 사례 · 실제 고객사가 아닙니다",
-  title: "빈 예약 한 칸을 다시 채우는 일주일",
-  hypothesis: "당일 예약이 취소되면 1인 미용실은 빈 시간을 다시 채우기 어렵다.",
-  steps: ["취소 발생", "대기 고객 확인", "한 명에게 제안", "재예약 확정"],
-  measures: ["취소 건수", "대기 고객에게 연락한 건수", "다시 채운 건수", "처리 시간"],
-  outputs: ["고객 검증 기록표", "IR 덱 문제·해결 슬라이드", "예약 재배정 MVP"],
+/** IR 덱 그래픽: 실무 가이드의 덱 구성 (특정 사례 없이) */
+export const irDeck = [
+  { label: "한 문장 소개", value: "고객, 문제, 해결 방법을 한 문장으로" },
+  { label: "문제", value: "고객이 겪는 상황과 지금 쓰는 대안" },
+  { label: "해결 방법", value: "핵심 흐름을 한 장에" },
+  { label: "근거·검증 계획", value: "확보한 근거에는 기간과 대상, 남은 가설에는 검증 계획" },
+  { label: "요청", value: "투자나 협력을 요청하는 이유" },
+];
+
+/** MVP 그래픽: AI에 줄 요구사항과 통과 기준 (특정 사례 없이) */
+export const mvpBuild = {
+  prompt: "시작 화면과 완료 상태를 보여 줘. 검증할 핵심 기능 하나만 동작하게 하고, 필요한 값이 비어 있으면 다음 단계로 넘어갈 수 없게 해 줘.",
+  checks: ["시작 화면", "핵심 기능 하나", "예외 상황 처리", "완료 상태 확인"],
 };
 
 /** 5. 기관 네트워크 — proof 데이터를 연도 순으로 */
@@ -103,8 +105,6 @@ export const chapters = [
   { id: "m-method", label: "METHOD", nav: true },
   { id: "m-hyper", label: "PRINCIPLES", nav: false },
   { id: "m-practice", label: "PRACTICE", nav: true },
-  { id: "m-case", label: "CASE", nav: true },
-  { id: "m-film", label: "FILM", nav: false },
   { id: "m-guides", label: "GUIDES", nav: true },
   { id: "m-network", label: "NETWORK", nav: true },
   { id: "m-contact", label: "CONTACT", nav: false },
@@ -136,30 +136,14 @@ export const guides = specialties.map((s) => ({
   guideTitle: s.guide.title,
   summary: s.guide.summary,
   points: [...s.guide.points],
-  sample: { title: s.guide.sample.title, rows: s.guide.sample.rows.map((r) => ({ ...r })) },
   source: s.guide.source,
-  preview: s.preview,
   reference: s.reference,
 }));
-
-export const film = {
-  kicker: "Case Film",
-  title: "30초 시연 영상",
-  label: "가상 사례 · 1인 미용실 예약 관리",
-  src: "/case/startup-demo.mp4",
-  poster: "/case/demo-poster.webp",
-  transcript: [
-    "고객 검증 기록표에 당일 취소 대처 방법, 다시 채운 예약 수와 처리 시간을 적습니다.",
-    "IR 덱 한 장에 문제와 해결 흐름을 담습니다. 실험이 시작되면 모을 근거도 제시합니다.",
-    "가상 MVP에서 대기 고객을 골라 빈 시간에 예약을 확정합니다. 완료된 시간에는 재확정 버튼이 비활성화됩니다.",
-  ],
-  experiment: siteParadox.experiment,
-};
 
 export const resources = {
   kicker: "Field Guides",
   title: siteInsights.title,
-  intro: siteInsights.intro,
+  intro: "고객 검증 계획, IR 덱과 피치, 첫 MVP 요구사항을 준비하는 방법을 분야별로 정리했습니다.",
   videosTitle: siteInsights.videosTitle,
   videos: siteInsights.videos.map((v) => ({ ...v })),
   businessPlan: siteInsights.businessPlan,

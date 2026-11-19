@@ -27,9 +27,9 @@ export function GuidesScene() {
       onEnter: (els) => gsap.from(els, { y: 60, opacity: 0, rotate: 1.5, stagger: 0.12, duration: 0.9, ease: "power3.out" }),
       once: true,
     });
-    // 미리보기 이미지는 카드보다 느리게 움직여 깊이를 만든다
-    q<HTMLElement>("[data-parallax]").forEach((img) => {
-      gsap.fromTo(img, { yPercent: -8 }, { yPercent: 8, ease: "none", scrollTrigger: { trigger: img, start: "top bottom", end: "bottom top", scrub: true } });
+    // 카드 머리의 번호가 카드보다 느리게 움직여 깊이를 만든다
+    q<HTMLElement>("[data-parallax]").forEach((el) => {
+      gsap.fromTo(el, { yPercent: 25 }, { yPercent: -25, ease: "none", scrollTrigger: { trigger: el, start: "top bottom", end: "bottom top", scrub: true } });
     });
   });
 
@@ -47,10 +47,12 @@ export function GuidesScene() {
           const isOpen = open === g.id;
           return (
             <article key={g.id} data-card className="overflow-hidden rounded-[1.75rem] border border-ink/10 bg-white/90 shadow-[0_30px_60px_-40px_rgba(30,60,130,0.5)] backdrop-blur">
-              <a href={g.preview.src} target="_blank" rel="noopener noreferrer" className="block overflow-hidden bg-sky-1" aria-label={`${g.preview.alt} (새 창)`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img data-parallax src={g.preview.src} alt="" width={960} height={540} loading="lazy" className="aspect-video w-full scale-110 object-cover" />
-              </a>
+              <div className="holo relative flex h-28 items-end overflow-hidden px-5 pb-3 md:px-6" aria-hidden="true">
+                <span data-parallax className="font-display text-[5.5rem] leading-none text-white/90 drop-shadow-[0_8px_20px_rgba(40,80,160,0.25)]">
+                  0{i + 1}
+                </span>
+                <span className="dots absolute inset-0 opacity-40" />
+              </div>
               <div className="p-5 md:p-6">
                 <p className="font-mono text-[11px] tracking-[0.2em] text-planet">0{i + 1} · {g.title}</p>
                 <h3 className="mt-2 text-xl font-black leading-snug">{g.guideTitle}</h3>
@@ -64,7 +66,7 @@ export function GuidesScene() {
                   }}
                   className="mt-4 inline-flex items-center gap-2 rounded-full border border-ink/15 px-4 py-2 text-sm font-bold hover:bg-ink hover:text-white"
                 >
-                  {isOpen ? "접기" : `${g.sample.title} 보기`}
+                  {isOpen ? "접기" : "가이드 펼치기"}
                   <span aria-hidden="true" className={`transition-transform ${isOpen ? "rotate-45" : ""}`}>+</span>
                 </button>
                 {isOpen && (
@@ -74,17 +76,6 @@ export function GuidesScene() {
                         <li key={p}>{p}</li>
                       ))}
                     </ol>
-                    <div className="rounded-2xl bg-sky-1/80 p-4">
-                      <p className="text-xs font-bold">가상 사례 · {g.sample.title}</p>
-                      <dl className="mt-2 divide-y divide-ink/10 text-sm">
-                        {g.sample.rows.map((r) => (
-                          <div key={r.label} className="py-2">
-                            <dt className="font-bold">{r.label}</dt>
-                            <dd className="mt-0.5 text-mute">{r.value}</dd>
-                          </div>
-                        ))}
-                      </dl>
-                    </div>
                     <a href={g.source.url} target="_blank" rel="noopener noreferrer" className="block text-sm font-semibold underline underline-offset-4">
                       참고 · {g.source.label}
                     </a>
