@@ -100,10 +100,9 @@ export const cta = {
 };
 
 export const chapters = [
-  { id: "m-hero", label: "INTRO", nav: false },
+  { id: "m-intro", label: "INTRO", nav: false },
   { id: "m-problem", label: "PROBLEM", nav: false },
-  { id: "m-hyper", label: "METHOD", nav: true },
-  { id: "m-method", label: "ORBITS", nav: false },
+  { id: "m-method", label: "METHOD", nav: true },
   { id: "m-practice", label: "PRACTICE", nav: true },
   { id: "m-guides", label: "GUIDES", nav: true },
   { id: "m-network", label: "NETWORK", nav: true },
@@ -114,7 +113,7 @@ export const chapters = [
 /* 기존 사이트 콘텐츠 연결                                              */
 /* ------------------------------------------------------------------ */
 
-/** 하이퍼스페이스 — 행성이 화면을 채우며 일하는 원칙을 선언한다 */
+/** 오프닝 타이틀(하이퍼스페이스) — 타이틀 → TEST WITH CARE → 고리와 원칙 → BUILD WITH EVIDENCE */
 export const hyper = {
   stage1: ["TEST", "WITH", "CARE"],
   stage2: ["BUILD", "WITH", "EVIDENCE"],
@@ -125,8 +124,6 @@ export const hyper = {
     "슬라이드마다|주장 하나, 근거 하나.",
     "핵심 흐름 하나가|동작하는 MVP부터.",
   ],
-  // 마지막 단계는 이어지는 방법론 장면의 타이틀
-  stage4: ["4개의 궤도로", "일합니다"],
 };
 
 /** 분야별 실무 가이드 (기존 사이트 specialties.guide) */

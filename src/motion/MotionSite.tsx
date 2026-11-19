@@ -2,7 +2,6 @@
 
 import { useSmoothScroll } from "./engine";
 import { Chrome } from "./Chrome";
-import { HeroScene } from "./scenes/HeroScene";
 import { ProblemScene } from "./scenes/ProblemScene";
 import { MethodScene } from "./scenes/MethodScene";
 import { PracticeScene } from "./scenes/PracticeScene";
@@ -18,9 +17,8 @@ export default function MotionSite() {
     <div className="motion-site relative overflow-x-clip">
       <Chrome />
       <main>
-        <HeroScene />
-        <ProblemScene />
         <HyperScene />
+        <ProblemScene />
         <MethodScene />
         <PracticeScene />
         <GuidesScene />

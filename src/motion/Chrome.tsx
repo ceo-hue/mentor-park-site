@@ -53,7 +53,7 @@ export function Chrome() {
         <div className="h-full origin-left bg-planet" style={{ transform: `scaleX(${progress})` }} />
       </div>
       <header className={`fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between bg-gradient-to-b to-transparent px-6 transition-colors duration-500 md:h-20 md:px-14 lg:px-20 ${dark ? "from-black/60" : "from-sky-0/90"}`}>
-        <a href="#m-hero" className="flex items-center gap-2" aria-label={`${brand.nameKo} 처음으로`}>
+        <a href="#m-intro" className="flex items-center gap-2" aria-label={`${brand.nameKo} 처음으로`}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/wordmark-ko.svg" alt="" width={129} height={94} className="h-9 w-auto md:h-11" />
           <span className={`hidden font-mono text-[11px] tracking-[0.25em] sm:inline ${dark ? "text-white/70" : "text-ink/70"}`}>{brand.nameEn}</span>

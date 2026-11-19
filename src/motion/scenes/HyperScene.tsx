@@ -15,7 +15,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { LOGO } from "@/lib/logo";
-import { hyper } from "../content";
+import { hero, hyper } from "../content";
 
 /* ---------- 원본과 같은 수학 도우미 ---------- */
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -277,7 +277,7 @@ export function HyperScene() {
     window.addEventListener("pointermove", onPointer, { passive: true });
 
     /* ---------- 단계 상태 기계 (원본 updateHyper) ---------- */
-    const bigLines = { A: hyper.stage1, B: hyper.stage2, D: hyper.stage4 };
+    const bigLines = { A: hero.lines, B: hyper.stage1, D: hyper.stage2 };
     let curStage = -1;
     let revealed = false;
     let wasWhite = false;
@@ -318,7 +318,8 @@ export function HyperScene() {
         revealed = play;
       }
       if (st === 2) ringsDraw(ringEls, clamp((i - 4 * vh) / (2 * vh), 0, 1));
-      setWhite(reveal > 0.55);
+      // 원본은 0.55(어두운 테마의 흰 글자). 밝은 테마의 검은 글자는 파란 바탕에서 일찍 흰색으로 바꾼다
+      setWhite(reveal > 0.3);
     };
 
     /* ---------- 프레임 (원본 frame의 하이퍼스페이스 부분) ---------- */
@@ -357,7 +358,8 @@ export function HyperScene() {
         const wW = worldW(zH);
         const rest = (140 * wH) / vh / HY_HEIGHT;
         const maxS = (Math.hypot(wW, wH) * 2.1) / (HY_RADIUS * 2);
-        const grow = smooth((cy - (hyTop + n)) / vh);
+        // 사이트 첫 장면: 처음 0.3화면은 작게 머물며 타이틀을 보여 준 뒤 한 화면 동안 커진다
+        const grow = smooth((-hyTop - vh * 0.3) / vh);
         const D = cy + n - hyH;
         const N = Math.min(vh, D + vh);
         const top = hyTop;
@@ -413,15 +415,24 @@ export function HyperScene() {
 
   return (
     <section
-      id="m-hyper"
+      id="m-intro"
       ref={sectionRef}
-      aria-label={`일하는 원칙: ${hyper.stage1.join(" ")}, ${hyper.stage2.join(" ")}, ${hyper.says.map((s) => s.replace(/\|/g, " ")).join(" ")} ${hyper.stage4.join(" ")}`}
+      aria-label={`${hero.lines.join(" ")} ${hero.ko} ${hyper.stage1.join(" ")}, ${hyper.says.map((s) => s.replace(/\|/g, " ")).join(" ")} ${hyper.stage2.join(" ")}`}
       className="relative h-[800svh]"
     >
       <canvas ref={canvasRef} className="pointer-events-none fixed inset-0 z-[5] h-full w-full" aria-hidden="true" />
       <div ref={stickRef} className="hy-stick" aria-hidden="true">
         <div className="hy-stage hy-seg0a">
+          <p className="col-span-full row-start-1 self-end text-center font-mono text-[11px] tracking-[0.3em] uppercase text-planet md:text-xs">
+            {hero.kicker}
+          </p>
           <div className="hy-big" data-big="A" />
+          <p className="col-span-full row-start-6 mx-auto max-w-xl self-start text-center text-sm leading-relaxed opacity-80 md:text-base">
+            {hero.ko}
+          </p>
+          <p className="col-span-full row-start-6 self-end justify-self-center font-mono text-[10px] tracking-[0.3em] opacity-60">
+            SCROLL ↓
+          </p>
         </div>
         <div className="hy-stage hy-seg0b">
           <div className="hy-big" data-big="B" />
