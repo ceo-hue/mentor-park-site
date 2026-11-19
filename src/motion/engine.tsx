@@ -53,6 +53,8 @@ export function useSmoothScroll() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const lenis = new Lenis({ duration: 1.1, easing: (t: number) => 1 - Math.pow(1 - t, 4) });
     lenis.on("scroll", ScrollTrigger.update);
+    // 원본 데모와 같이 디버그용으로 노출
+    (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);

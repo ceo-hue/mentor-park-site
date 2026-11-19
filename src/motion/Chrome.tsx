@@ -38,9 +38,15 @@ export function Chrome() {
     };
   }, []);
 
+  // 하이퍼스페이스 도형이 화면을 덮으면(reveal > 0.55) UI를 밝게 — 원본과 같은 기준
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const on = (e: Event) => setDark(Boolean((e as CustomEvent<boolean>).detail));
+    window.addEventListener("hyper-dark", on);
+    return () => window.removeEventListener("hyper-dark", on);
+  }, []);
+
   const chapter = chapters[active];
-  // 어두운 하이퍼스페이스 장면에서는 UI를 밝게
-  const dark = chapter.id === "m-hyper";
   return (
     <>
       <div className="fixed inset-x-0 top-0 z-50 h-[3px] bg-ink/5" aria-hidden="true">
