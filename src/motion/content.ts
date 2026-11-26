@@ -3,7 +3,7 @@
  * 사실 정보(서비스, 진행 과정, 기관 이력, 연락처)는 모두 src/content/site.ts에서 가져온다.
  * 이 파일에는 기업형 어조의 문장과 장면 구성만 둔다. 숫자·고객사·성과를 새로 만들지 않는다.
  */
-import { brand, person, process, proof, specialties } from "@/content/site";
+import { brand, institutionRecords, person, process, proof, specialties } from "@/content/site";
 import { insights as siteInsights, person as sitePerson } from "@/content/site";
 
 export { brand };
@@ -60,28 +60,12 @@ export const mvpBuild = {
   checks: ["시작 화면", "핵심 기능 하나", "예외 상황 처리", "완료 상태 확인"],
 };
 
-/** 5. 기관 네트워크 — proof 데이터를 연도 순으로 */
-type NetworkNode = { year: number; org: string; role: string; url?: string };
-
-function firstYear(text: string | null | undefined) {
-  const m = text?.match(/(\d{4})/);
-  return m ? Number(m[1]) : null;
-}
-
-const orgOf = (name: string) =>
-  name
-    .replace(/\s*(예비창업패키지 전담멘토|창업전문가|평가위원|평가·심의위원|창업전문기업)?\s*풀 등록$/, "")
-    .replace(/ 수료$/, "")
-    .trim();
-
+/** 5. 기관 활동 — 대표로 운영한 회사와 기관 멘토링·강의 이력 (평가·심사 활동은 공개하지 않는다) */
 export const network = {
-  title: "멘토링과 기관 활동",
-  note: proof.evaluationPool.note,
-  nodes: ([
-    ...proof.mentoring.map((e) => ({ year: firstYear(e.period), org: orgOf(e.name), role: e.name })),
-    ...proof.evaluationPool.entries.map((e) => ({ year: firstYear(e.period), org: orgOf(e.name), role: e.name })),
-    ...proof.activities.map((a) => ({ year: firstYear(a.year), org: a.title, role: a.role, url: a.url })),
-  ].filter((n) => n.year !== null) as NetworkNode[]).sort((a, b) => a.year - b.year),
+  title: "기관 활동",
+  startups: proof.startups,
+  mentoring: institutionRecords.mentoring,
+  lecture: institutionRecords.lecture,
 };
 
 export const leader = {

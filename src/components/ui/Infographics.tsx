@@ -124,10 +124,6 @@ function timelineItems(): Item[] {
     const p = parsePeriod(e.period);
     if (p) items.push({ name: e.name, ...p, group: "멘토·전문가 활동" });
   }
-  for (const e of proof.evaluationPool.entries) {
-    const p = parsePeriod(e.period);
-    if (p) items.push({ name: e.name, ...p, group: proof.evaluationPool.label });
-  }
   for (const a of proof.activities) {
     const p = parsePeriod(a.year);
     if (p) items.push({ name: a.title, ...p, url: a.url, group: "기관 공개 활동" });
@@ -147,12 +143,12 @@ export function ActivityTimeline() {
   const span = 100 / years.length;
 
   const groups = Array.from(new Set(items.map((i) => i.group)));
-  const registrations = [...proof.mentoring, ...proof.evaluationPool.entries].filter((e) => e.name.includes("풀 등록")).length;
+  const registrations = proof.mentoring.filter((e) => e.name.includes("풀 등록")).length;
   const publicRecords = proof.activities.filter((a) => a.url).length + insights.videos.filter((v) => v.url).length;
 
   const stats = [
     { value: thisYear - first + 1, unit: "년째", label: `${first}년 첫 기록부터 올해까지` },
-    { value: registrations, unit: "건", label: "기관 멘토·평가위원 풀 등록" },
+    { value: registrations, unit: "건", label: "기관 멘토 풀 등록" },
     { value: publicRecords, unit: "건", label: "링크로 직접 확인할 수 있는 활동·강의" },
   ];
 

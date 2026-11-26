@@ -224,8 +224,7 @@ export function Process() {
 
 /* 멘토 이력 */
 export function Proof() {
-  const groups = [
-    proof.evaluationPool,
+  const groups: { label: string; note: string | null; entries: readonly { name: string; period: string }[] }[] = [
     { label: "멘토·전문가 활동", note: null, entries: proof.mentoring },
   ];
   return (

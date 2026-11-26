@@ -61,7 +61,7 @@ const mentorActivities = {
   ir: {
     year: "2021",
     title: "세종대 피칭 & 집중 멘토링 데이",
-    role: "창업팀 최종 피칭 심사",
+    role: "피칭 & 멘토링 DAY 피칭 멘토",
     linkLabel: "행사 사진과 공식 보도 보기",
     url: "https://pr.sejong.ac.kr/news/today/press-release.do?article.offset=0&articleLimit=10&articleNo=723586&mode=view",
   },
@@ -204,18 +204,97 @@ export const process = {
   ],
 };
 
+/**
+ * 기관 멘토링·강의 이력 (박용근 프로필 기준).
+ * 평가·심사 활동과 평가위원 풀 등록은 공개하지 않는다.
+ * 기업 사내 강의, 대학 진로·스피치 강의, 방송·MC 이력은 창업 분야가 아니라 넣지 않았다.
+ */
+type InstitutionRecord = { date: string; year: number | null; org: string; program: string; role: string; url?: string };
+
+export const institutionRecords: { mentoring: InstitutionRecord[]; lecture: InstitutionRecord[] } = {
+  mentoring: [
+    { date: "2026", year: 2026, org: "관악S밸리 창업페스티벌", program: "1:1 밋업", role: "초기 아이디어 검증·비즈니스 모델 전문가", url: mentorActivities.pmf.url },
+    { date: "2026.07", year: 2026, org: "동국대학교 창업교육센터", program: "창업동아리 멘토링", role: "창업동아리 멘토" },
+    { date: "2025.10~11", year: 2025, org: "(주)오픈놀", program: "로컬파이오니어스쿨 ‘창업부스팅’ 과정", role: "사업계획서 멘토링·컨설팅" },
+    { date: "2025.10", year: 2025, org: "화성시 꿈마루", program: "2025 화성시 취창업박람회", role: "일반경영 컨설팅" },
+    { date: "2024.05", year: 2024, org: "동국대학교 창업지원단", program: "예비창업패키지 상담창구 멘토링", role: "예비창업패키지 멘토링" },
+    { date: "2024.02", year: 2024, org: "백석대학교", program: "입주기업 IR 컨설팅 사업(독립잇다.)", role: "IR 컨설팅" },
+    { date: "2023.01~02", year: 2023, org: "동국대학교 창업지원단", program: "예비창업패키지 상담창구 멘토링", role: "예비창업패키지 멘토링" },
+    { date: "2022.06", year: 2022, org: "세종대학교", program: "피칭 & 멘토링 대회", role: "멘토링" },
+    { date: "2021.11", year: 2021, org: "구미전자정보기술원", program: "대-스타 해결사 플랫폼 반도체 분야", role: "IR 피칭 멘토링" },
+    { date: "2021.11", year: 2021, org: "세종대학교", program: "피칭 & 멘토링 DAY", role: "피칭 멘토", url: mentorActivities.ir.url },
+    { date: "2021.10", year: 2021, org: "한국발명진흥회", program: "시니어 퇴직인력의 기술기반 창업지원 사업", role: "사업계획·IR 컨설팅" },
+    { date: "2021.08", year: 2021, org: "세종대학교", program: "피칭 & 멘토링 대회", role: "멘토링" },
+    { date: "2021.07", year: 2021, org: "세종창조경제혁신센터", program: "2021 도전! K-스타트업 참가팀(지역 최종예선)", role: "IR 피칭 멘토링" },
+    { date: "2021.06", year: 2021, org: "충무창업큐브", program: "서울시 스타트업 챌린지 충무로점 참여기업", role: "사업계획·피칭 멘토링" },
+    { date: "2021.05", year: 2021, org: "스파크", program: "찾아가는 국군 창업 멘토링(국군 창업 경진대회)", role: "비대면 창업 멘토링" },
+    { date: "2020.10", year: 2020, org: "창업진흥원", program: "2020 도전! K-스타트업 본선 진출(공군)", role: "비대면 멘토링" },
+    { date: "2020.10", year: 2020, org: "강원대학교", program: "예비창업자 비대면 멘토링", role: "비대면 멘토링" },
+    { date: "2020.10", year: 2020, org: "공주대학교", program: "예비창업자 비대면 멘토링", role: "비대면 멘토링" },
+    { date: "2020.07", year: 2020, org: "신림사회복지관", program: "예비창업자 멘토링", role: "멘토링" },
+    { date: "2020.06", year: 2020, org: "창업진흥원", program: "2020 도전! K-스타트업 본선 진출(국군)", role: "IR 피칭 멘토링" },
+    { date: "2018~2020", year: 2020, org: "캠틱종합기술원", program: "선도기업 분석대회", role: "멘토링·비대면 멘토링" },
+    { date: "2019~2023", year: 2019, org: "창업진흥원", program: "예비창업패키지", role: "전담멘토" },
+    { date: "2019.09", year: 2019, org: "제주청년창업사관학교", program: "입교기업 대상 피칭 멘토링", role: "IR 피칭 멘토링" },
+    { date: "2018.10 · 2019.09", year: 2019, org: "충남청년창업사관학교", program: "입교기업 대상 피칭 멘토링", role: "IR 피칭 멘토링" },
+    { date: "2018.08", year: 2018, org: "광주대학교", program: "교내 창직 프로그램", role: "멘토링" },
+    { date: "2018.07", year: 2018, org: "성신여자대학교", program: "창업·창직 프로그램 / 기업가 정신 및 IR PT", role: "멘토링·강의" },
+    { date: "2018.06", year: 2018, org: "한국특허전략개발원", program: "창의적 지식재산 사업화 지원 사업", role: "참가팀 IR 피칭(PT)" },
+    { date: "2018.05", year: 2018, org: "계명예술대학교", program: "창업·창직 프로그램 / 브랜드 컨설팅", role: "멘토링" },
+    { date: "2017.11", year: 2017, org: "빅뱅엔젤스", program: "액셀러레이터 연계지원사업 유니콘파인더", role: "IR 국문 피칭 멘토링" },
+    { date: "2017.10", year: 2017, org: "위덕대학교", program: "창업 역량 강화 캠프", role: "멘토링" },
+    { date: "2017.09", year: 2017, org: "서울시립대학교", program: "스마트 창작터", role: "멘토링·강의" },
+    { date: "2017.09", year: 2017, org: "대구대학교", program: "스포츠 창업캠프", role: "멘토링·강의" },
+    { date: "2017.08", year: 2017, org: "문성대학교", program: "예비창업자를 위한 맞춤형 창업캠프", role: "멘토링·강의" },
+    { date: "2017.07", year: 2017, org: "무주군", program: "반딧불 청년창업 지원 사업", role: "IR 피칭 멘토링" },
+    { date: "2017.06", year: 2017, org: "대구대학교", program: "상상플러스 창업캠프", role: "멘토링·강의" },
+    { date: "2017.05", year: 2017, org: "전주벤처기업육성촉진지구발전협의회", program: "리스타트업 캠프", role: "멘토링·강의" },
+    { date: "2016.11", year: 2016, org: "창업진흥원", program: "빅데이터 왕중왕전 최종 12팀 파이널", role: "IR 피칭 멘토링" },
+    { date: "2016.06", year: 2016, org: "창업진흥원", program: "KBS 도전! K-STARTUP 본선 진출", role: "IR 피칭 멘토링" },
+    { date: "2015.07", year: 2015, org: "SBA 창업스쿨", program: "스타트업 IR PT 발표스킬 업 프로그램", role: "멘토링·강의" },
+  ],
+  lecture: [
+    { date: "2026.11", year: 2026, org: "고려대학교", program: "모두의 창업 2기 1R 캠프", role: "PMF 강의·멘토링" },
+    { date: "2026.11", year: 2026, org: "서울지식재산센터(SBA)", program: "2026 IP디딤돌 프로그램 ‘IP창업클럽 스타트업 IP:ON’", role: "특강·1:1 멘토링" },
+    { date: "2026.10", year: 2026, org: "서울지식재산센터 × 남부여성발전센터", program: "사업계획서 작성 실습(모두의창업 특화)", role: "실습 강의" },
+    { date: "2026.09", year: 2026, org: "서울지식재산센터(SBA)", program: "IP창업존 32기 / 비즈니스모델과 사업계획서", role: "사업계획서 강의" },
+    { date: "2026.08", year: 2026, org: "배화여자대학교 취창업지원팀", program: "실전 사업계획서 특강", role: "대면 그룹 첨삭 강의" },
+    { date: "2026.05", year: 2026, org: "(사)충남산학융합원", program: "정부지원사업의 이해 및 사업계획서 작성", role: "창업 강의" },
+    { date: "2025.12", year: 2025, org: "배화여자대학교 산학협력처", program: "창업부트캠프 ‘린스타트업’", role: "특강" },
+    { date: "2025", year: 2025, org: "서울지식재산센터(SBA)", program: "IP창업존 / 사업계획서 작성", role: "사업계획서 강의" },
+    { date: "2024.06", year: 2024, org: "성남 브릿지센터", program: "생성형 AI를 활용한 SNS 마케팅", role: "초기창업자 강의" },
+    { date: "2024.06", year: 2024, org: "백석대학교", program: "창업멘토링 교양수업(기업가정신)", role: "창업 강의" },
+    { date: "2024.05", year: 2024, org: "강원창조경제혁신센터", program: "강원 창업 오디션", role: "피칭 강의" },
+    { date: "2023.08", year: 2023, org: "백석대학교", program: "창업멘토링 교양수업(기업가정신)", role: "창업 강의" },
+    { date: "2023.07", year: 2023, org: "서울IP지식재산센터", program: "서울 IP디딤돌 프로그램", role: "IR 피칭 강의" },
+    { date: "2023.06", year: 2023, org: "성남IP지식재산센터", program: "성남 IP디딤돌 프로그램", role: "IR 피칭 강의" },
+    { date: "2023", year: 2023, org: "서울시 자영업지원센터", program: "항목별 키포인트로 술술쓰는 사업계획서", role: "강의 영상", url: "https://edu.seoulsbdc.or.kr/course/course_view.jsp?id=49967&cid=11475&lnb=6159&ch=course1#cview3" },
+    { date: "2023", year: 2023, org: "경기도 자영업 아카데미", program: "예비창업자를 위한 사업계획서 핵심 가이드", role: "강의 영상", url: "https://edu.gmr.or.kr/onlineCos/contentsPreview/1823" },
+    { date: "2022.10", year: 2022, org: "한국콘텐츠진흥원", program: "2022 콘텐츠 임팩트 / 몰입 피칭", role: "비대면 강의" },
+    { date: "2021.11", year: 2021, org: "창업진흥원", program: "창업에듀 교육영상 / 예시로 알아보는 사업계획서", role: "창업 강의", url: "https://www.youtube.com/watch?v=dEIglevKkdA&t=1151s" },
+    { date: "2020.11", year: 2020, org: "한국콘텐츠진흥원", program: "콘텐츠 임팩트", role: "비대면 강의·멘토링" },
+    { date: "2020.09", year: 2020, org: "서울시창업카페 상봉점", program: "기업가 정신 및 인플루언서 창업 마인드", role: "강의" },
+    { date: "2019.09", year: 2019, org: "서울대학교 캠퍼스타운", program: "녹두 프로그램 / 설득력 있는 이미지(보이스) 훈련", role: "강의" },
+    { date: "2019.04", year: 2019, org: "충무창업큐브", program: "사업계획 취지와 목적 만들기", role: "강의" },
+    { date: "2017.02", year: 2017, org: "강원창조경제혁신센터", program: "스타트업 사업계획 스킬업", role: "강의" },
+    { date: "2015.05", year: 2015, org: "SBA 창업스쿨", program: "프레젠테이션 발표스킬 업", role: "강의" },
+    { date: "2014.04", year: 2014, org: "홍익대학교 창조아카데미", program: "창업 프로그램 ‘보이스 트레이닝’", role: "강의" },
+    { date: "2013.09", year: 2013, org: "소상공인진흥원 경영학교", program: "키노트 프레젠테이션", role: "강의" },
+    { date: "2012.10", year: 2012, org: "부천대학교", program: "창업 콘서트", role: "강연" },
+    { date: "온라인", year: null, org: "소상공인 지식배움터", program: "성공적인 사업계획서 작성", role: "강의 영상", url: mentorActivities.lecture.url },
+  ],
+};
+
 /* 멘토 활동과 기관 등록 이력 */
 export const proof = {
   title: "박용근 멘토 이력",
-  activities: [mentorActivities.pmf, mentorActivities.ir, mentorActivities.lecture, mentorActivities.workshop],
-  evaluationPool: {
-    label: "평가위원 풀 등록",
-    note: "(본 등록은 평가위원으로 위촉된 순간에만 역할을 수행하며 평상시에는 위원자격이 없습니다.)",
-    entries: [
-      { name: "창업진흥원 평가위원 풀 등록", period: "2023년 등록 이력" },
-      { name: "경기콘텐츠진흥원 평가·심의위원 풀 등록", period: "2024년 등록 이력" },
-    ],
-  },
+  activities: [mentorActivities.pmf, mentorActivities.ir, mentorActivities.lecture],
+  /** 대표로 창업·운영한 회사 (프로필 경력 기준). 첫 항목을 강조한다 */
+  startups: [
+    { org: "온에어플래닛", role: "대표 · IR 피칭 전문 멘토", period: "2022.05 ~ 현재", field: "경영컨설팅 · 스타트업 멘토링" },
+    { org: "와이스트", role: "대표", period: "2016.05 ~ 2017.12 · 2018.11 ~ 2022.03", field: "경영컨설팅" },
+    { org: "K엔터테인먼트", role: "대표", period: "2011.08 ~ 2012.06", field: "사업운영" },
+  ],
   mentoring: [
     { name: "창업진흥원 예비창업패키지 전담멘토 풀 등록", period: "2019~2023" },
     { name: "성남산업진흥원 창업전문가 풀 등록", period: "2023년 등록 이력" },
@@ -285,15 +364,15 @@ export const insights = {
 export const gallery = {
   title: "현장의 기록",
   body: "기관이 공개한 창업 행사와 강의 기록입니다.",
-  records: [mentorActivities.pmf, mentorActivities.ir, mentorActivities.workshop],
+  records: [mentorActivities.pmf, mentorActivities.ir],
 };
 
 /* 4. 인물 */
 export const person = {
   eyebrow: "The Pilot",
   name: "박용근",
-  role: "온에어플래닛 대표 · IR 피칭 멘토",
-  body: "아이디어와 첫 제품을 준비하는 예비·극초기 창업팀을 멘토링합니다. 중장년 기술창업, 사업화 전략, 사업계획서 작성과 IR 발표를 함께 점검해 왔습니다.",
+  role: "온에어플래닛 대표 · IR 피칭 전문 멘토",
+  body: "아이디어와 첫 제품을 준비하는 예비·극초기 창업팀을 멘토링합니다. IR 피칭을 중심으로 사업화 전략과 사업계획서 작성을 함께 점검해 왔습니다.",
   research: "Project ARHA에서는 브랜드의 어조와 업무 맥락을 AI 응답에 반영하는 방법을 연구합니다.",
   creds: ["예비창업패키지 전담멘토 활동", "문화창업플래너 수료"],
 };
