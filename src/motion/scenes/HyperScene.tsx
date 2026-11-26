@@ -1,9 +1,8 @@
 "use client";
 
-/** 파스텔 배경과 행성이 함께 펼쳐지며 첫 상담 장면으로 이어지는 오프닝 */
+/** 마우스를 따라다니는 굴절 렌즈와 하이퍼스페이스, ON AIR 신호 파동이 펼쳐지며 첫 상담 장면으로 이어지는 오프닝 */
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { LOGO } from "@/lib/logo";
 import { hero, hyper } from "../content";
 import { ScrollTrigger } from "../engine";
 import { LIGHT_FRAG, LIGHT_VERT } from "../hyperShader";
@@ -15,8 +14,6 @@ const smooth = (t: number) => {
   return t * t * (3 - 2 * t);
 };
 const damp = (a: number, b: number, k: number, dt: number) => lerp(a, b, 1 - Math.exp(-k * dt));
-const rad = (d: number) => (d * Math.PI) / 180;
-const isMobile = () => window.innerWidth < 900;
 
 /* ---------- 시드 고정 글자 등장 (원본 buildStag) ---------- */
 function seeded(text: string, salt?: string) {
@@ -86,72 +83,92 @@ function fillBig(el: HTMLElement, lines: readonly string[]) {
   });
 }
 
-/* ---------- 고리 7개 (원본 ringsDraw) ---------- */
-const RINGS = 7;
-const HALF = new Float32Array(301);
-for (let k = 0; k <= 300; k++) {
-  const t = k - 150;
-  const r = 22500 - t * t;
-  HALF[k] = r > 0 ? Math.sqrt(r) : 0;
+/* ---------- ON AIR 신호 ----------
+ * 방송 기호 ((•))처럼 가운데 신호점에서 좌우로 호가 퍼진다. 빛줄기와 같은 정면 원근.
+ * 호는 스크롤을 따라 나아가고(멈추면 아주 천천히), 문구가 켜지면 그 문구 쪽으로 강조 신호가 한 번 날아간다. */
+const ARCS = 6; // 한쪽의 기본 호 수
+const ARC_R = 470; // 가장 바깥 호의 반지름 (viewBox 단위)
+const ARC_SPAN = (36 * Math.PI) / 180; // 호의 반각
+const PHRASE_SIDE = [1, 1, -1, -1]; // 문구 a·b는 오른쪽, c·d는 왼쪽
+type SignalEls = {
+  ambient: SVGPathElement[]; // [오른쪽 ARCS개, 왼쪽 ARCS개]
+  accent: SVGPathElement[];
+  trail: SVGPathElement[];
+  core: SVGCircleElement;
+  ring: SVGCircleElement;
+};
+const fract = (v: number) => v - Math.floor(v);
+function setArc(el: SVGPathElement, side: number, r: number, alpha: number) {
+  if (alpha <= 0.004 || r <= 0.02) {
+    el.setAttribute("visibility", "hidden");
+    return;
+  }
+  const R = r * ARC_R;
+  const x = side * R * Math.cos(ARC_SPAN);
+  const y = R * Math.sin(ARC_SPAN);
+  el.setAttribute("visibility", "visible");
+  el.setAttribute("d", `M${x.toFixed(2)} ${(-y).toFixed(2)}A${R.toFixed(2)} ${R.toFixed(2)} 0 0 ${side > 0 ? 1 : 0} ${x.toFixed(2)} ${y.toFixed(2)}`);
+  el.setAttribute("stroke-opacity", alpha.toFixed(3));
 }
-const RC = { enter: 300, exit: 345, cycle: 300, total: 600 + 345 };
-function ringsDraw(els: SVGEllipseElement[], p: number) {
-  const r = clamp(p, 0, 1) * RC.total;
-  let n = 0;
-  let i = r;
-  if (r > RC.enter) {
-    if (r <= RC.enter + RC.cycle) {
-      n = 1;
-      i = r - RC.enter;
-    } else {
-      n = 2;
-      i = r - RC.enter - RC.cycle;
-    }
+function signalDraw(w: SignalEls, p: number, t: number, accentStart: number[], nowMs: number, motion: boolean) {
+  // 기본 호: 스크롤 진행(p)으로 나아가고, 가만히 있어도 아주 천천히 흐른다. 바깥으로 갈수록 옅어진다
+  const phase = motion ? p * 2.2 + t * 0.03 : 0.5;
+  for (let k = 0; k < ARCS * 2; k++) {
+    const side = k < ARCS ? 1 : -1;
+    const i = k % ARCS;
+    const r = fract(phase + i / ARCS);
+    setArc(w.ambient[k], side, r, 0.7 * Math.pow(1 - r, 1.5) * smooth(r / 0.08));
   }
-  const o = n === 0 ? (i / 50) | 0 : 0;
-  const seen: number[] = [];
-  for (let t = 0; t < RINGS; t++) {
-    const el = els[t];
-    let l = 0;
-    let s = false;
-    if (n === 0) s = i >= 50 * t && (l = i - ((o < 6 ? o : 6) - t) * 50) > 0 && l < 300;
-    else if (n === 1) s = (l = (((i + 50 * t) % 300) + 300) % 300) > 0 && l < 300;
-    else s = (l = i + 50 * t) > 0 && l < 300;
-    if (!s) {
-      el.setAttribute("visibility", "hidden");
-      continue;
+  // 강조 신호: 문구가 켜진 순간부터 1.5초 동안 그 문구 쪽으로. 뒤에 옅은 잔상 호가 따라간다
+  w.accent.forEach((el, k) => {
+    const start = accentStart[k];
+    const age = start < 0 || !motion ? 2 : (nowMs - start) / 1500;
+    if (age >= 1) {
+      setArc(el, 1, 0, 0);
+      setArc(w.trail[k], 1, 0, 0);
+      return;
     }
-    const f = Math.floor(l);
-    const fr = l - f;
-    const u = HALF[f] + (HALF[Math.min(300, f + 1)] - HALF[f]) * fr;
-    if (u <= 0 || seen.some((q) => Math.abs(q - l) < 0.5)) {
-      el.setAttribute("visibility", "hidden");
-      continue;
-    }
-    seen.push(l);
-    el.setAttribute("visibility", "visible");
-    el.setAttribute("cx", "172");
-    el.setAttribute("cy", String(22 + l));
-    el.setAttribute("rx", u.toFixed(2));
-    el.setAttribute("ry", (u * 0.1).toFixed(2));
-  }
+    const r = 1 - Math.pow(1 - age, 3);
+    const a = Math.pow(1 - age, 1.2);
+    setArc(el, PHRASE_SIDE[k], r, a);
+    setArc(w.trail[k], PHRASE_SIDE[k], Math.max(0, r - 0.05), a * 0.45);
+  });
+  // 신호점: 스크롤과 시간에 맞춰 은은하게 맥박
+  const pulse = motion ? Math.sin(t * 3.2 + p * 12) * 0.5 + 0.5 : 0.5;
+  w.core.setAttribute("r", (4.5 + pulse * 1.2).toFixed(2));
+  w.ring.setAttribute("r", (11 + pulse * 3).toFixed(2));
+  w.ring.setAttribute("stroke-opacity", (0.75 - pulse * 0.35).toFixed(3));
 }
 
-const PLANET_VERT =
-  "varying vec3 vN,vE;void main(){vec4 wp=modelMatrix*vec4(position,1.);gl_Position=projectionMatrix*viewMatrix*wp;vN=normalize(mat3(modelMatrix)*normal);vE=normalize(wp.xyz-cameraPosition);}";
-
-const PLANET_FRAG = [
-  "uniform float uOpacity;uniform vec3 uAccent,uLight;varying vec3 vN,vE;",
-  "float spec(vec3 light,vec3 n,vec3 e){vec3 l=normalize(-light);vec3 h=normalize(e+l);return pow(abs(dot(n,h)),40.)+max(0.,dot(n,l))*.1;}",
-  "void main(){vec3 n=normalize(vN);vec3 e=normalize(vE);vec3 rgb=mix(uAccent,vec3(.48,.68,.91),.1);",
-  " float f=pow(1.-abs(dot(e,n)),6.);rgb+=spec(uLight,n,e)*.64+f*.16;gl_FragColor=vec4(rgb,uOpacity);}",
+/**
+ * 마우스를 따라다니는 굴절 렌즈 (보내 준 Refraction Glass Lens 셰이더 그대로).
+ * 볼록 렌즈 곡면 + 미세한 물결 + RGB 분광 + 테두리 빛.
+ * - uMode 0: 흰 첫 화면. 글자를 그린 캔버스를 렌즈 안에서만 휘어 불투명하게 덮고, 렌즈 밖은 투명 (원래 HTML 글자가 보인다)
+ *            흰 바탕에서는 흰 테두리가 보이지 않아 테두리만 브랜드 파랑으로
+ */
+const LENS_VERT = "varying vec2 vUv;void main(){vUv=uv;gl_Position=vec4(position.xy,0.,1.);}";
+const LENS_FRAG = [
+  "uniform sampler2D uTexture;uniform vec2 uMouse;uniform float uAspect,uTime,uRadius,uMode;uniform vec3 uRim;varying vec2 vUv;",
+  "void main(){vec2 uv=vUv;vec2 st=vec2(uv.x*uAspect,uv.y);vec2 m=vec2(uMouse.x*uAspect,uMouse.y);",
+  " float dist=distance(st,m);float radius=uRadius;",
+  " if(radius>.001&&dist<radius){float nd=dist/radius;",
+  "  float lensFactor=sin(nd*3.141592*.5);float ripple=sin(dist*40.-uTime*3.)*.015;float distortion=(1.-lensFactor)*.12+ripple;",
+  "  vec2 dir=normalize(st-m+vec2(1e-5));vec2 duv=uv-dir*distortion;float co=.018*(1.-nd);",
+  "  vec4 r=texture2D(uTexture,duv+dir*co);vec4 g=texture2D(uTexture,duv);vec4 b=texture2D(uTexture,duv-dir*co);",
+  "  float rim=smoothstep(.85,1.,nd)*.3;",
+  "  if(uMode<.5){float edge=1.-smoothstep(radius-.003,radius,dist);vec3 c=mix(vec3(r.r,g.g,b.b),uRim,rim*1.6);gl_FragColor=vec4(c*edge,edge);}",
+  "  else{vec3 c=vec3(r.r,g.g,b.b)+vec3(rim);gl_FragColor=vec4(c,clamp(max(max(max(r.a,g.a),b.a),rim),0.,1.));}",
+  " }else{gl_FragColor=uMode<.5?vec4(0.):texture2D(uTexture,uv);}",
+  "}",
 ].join("\n");
 
+const LENS_RADIUS = 0.14; // 화면 높이 대비 (원본 0.28의 절반)
 
 export function HyperScene() {
   const sectionRef = useRef<HTMLElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const lensCanvasRef = useRef<HTMLCanvasElement>(null);
   const stickRef = useRef<HTMLDivElement>(null);
   const washRef = useRef<HTMLDivElement>(null);
 
@@ -159,6 +176,7 @@ export function HyperScene() {
     const section = sectionRef.current!;
     const backdrop = backdropRef.current!;
     const canvas = canvasRef.current!;
+    const lensCanvas = lensCanvasRef.current!;
     const stick = stickRef.current!;
     const washEl = washRef.current!;
     const problemWrap = document.getElementById("m-problem-wrap");
@@ -171,51 +189,62 @@ export function HyperScene() {
     const bigD = stick.querySelector<HTMLElement>("[data-big='D']")!;
     const says = Array.from(stick.querySelectorAll<HTMLElement>(".hy-say"));
     const ringG = stick.querySelector<SVGGElement>("[data-ring-g]")!;
-    const ringEls: SVGEllipseElement[] = [];
-    for (let i = 0; i < RINGS; i++) {
-      const el = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
+    const SVG_NS = "http://www.w3.org/2000/svg";
+    const makeArc = (cls: string) => {
+      const el = document.createElementNS(SVG_NS, "path");
+      el.setAttribute("class", cls);
       el.setAttribute("visibility", "hidden");
       ringG.appendChild(el);
-      ringEls.push(el);
-    }
+      return el;
+    };
+    const makeCircle = (cls: string) => {
+      const el = document.createElementNS(SVG_NS, "circle");
+      el.setAttribute("class", cls);
+      return el;
+    };
+    const signal: SignalEls = {
+      ambient: Array.from({ length: ARCS * 2 }, () => makeArc("arc")),
+      trail: Array.from({ length: 4 }, () => makeArc("arc-trail")),
+      accent: Array.from({ length: 4 }, () => makeArc("arc-accent")),
+      ring: makeCircle("sig-ring"),
+      core: makeCircle("sig-core"),
+    };
+    const label = document.createElementNS(SVG_NS, "text");
+    label.setAttribute("class", "sig-label");
+    label.setAttribute("y", "36");
+    label.setAttribute("text-anchor", "middle");
+    label.textContent = "ON AIR";
+    ringG.append(signal.ring, signal.core, label);
+    const ringEls: Element[] = [...signal.ambient, ...signal.trail, ...signal.accent, signal.ring, signal.core, label];
+    // 문구별 강조 신호가 시작된 시각 (-1이면 아직)
+    const accentStart = [-1, -1, -1, -1];
     says.forEach((el) => buildStag(el, el.dataset.stag!, 0));
 
     /* ---------- WebGL ---------- */
+    // 두 장의 캔버스: 글자 아래(빛줄기)와 글자 위(흰 첫 화면의 렌즈)
     let renderer: THREE.WebGLRenderer | null = null;
+    let lensRenderer: THREE.WebGLRenderer | null = null;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, powerPreference: "high-performance" });
+      lensRenderer = new THREE.WebGLRenderer({ canvas: lensCanvas, alpha: true });
+      renderer.autoClear = false;
+      lensRenderer.autoClear = false;
     } catch {
       renderer = null;
+      lensRenderer = null;
     }
-    const CAMZ = 14;
-    const FOV = 35;
-    const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 120);
-    camera.position.set(0, 0, CAMZ);
+    const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     let W = 1;
     let H = 1;
     let pr = 1;
-    const worldH = (z: number) => 2 * Math.tan(rad(FOV / 2)) * (CAMZ - z);
-    const worldW = (z: number) => (worldH(z) * W) / H;
 
-    const uLight = { value: new THREE.Vector3(4, 9, 0.5) };
-    const planetMaterial = new THREE.ShaderMaterial({
-      uniforms: {
-        uOpacity: { value: 1 },
-        uAccent: { value: new THREE.Color(LOGO.color) },
-        uLight,
-      },
-      vertexShader: PLANET_VERT,
-      fragmentShader: PLANET_FRAG,
-      transparent: true,
-    });
     const lightMaterial = new THREE.ShaderMaterial({
       uniforms: {
         iRes: { value: new THREE.Vector3(1, 1, 1) },
         iTime: { value: 0 },
         uDur: { value: 2 },
         uOpacity: { value: 0 },
-        uDark: { value: 0 },
+        uDark: { value: 1 },
         uPhase: { value: 0 },
         uCenter: { value: new THREE.Vector2() },
         uClip: { value: new THREE.Vector3(0, 0, -1) },
@@ -228,22 +257,39 @@ export function HyperScene() {
       depthTest: false,
       depthWrite: false,
     });
-    // 빛줄기는 화면 좌표로 그려 행성과 고리의 윤곽에 잘리지 않게 한다.
-    const light = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), lightMaterial);
+    const quad = () => new THREE.PlaneGeometry(2, 2);
+    const light = new THREE.Mesh(quad(), lightMaterial);
     light.frustumCulled = false;
-    light.renderOrder = -1;
+    const bgScene = new THREE.Scene();
+    bgScene.add(light);
 
-    // 도형: 행성 구체 + 기울어진 고리 (명함 측정값)
-    const hy = new THREE.Group();
-    const planet = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), planetMaterial);
-    const ringWrap = new THREE.Group();
-    ringWrap.rotation.z = LOGO.ringRoll;
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(LOGO.ringRadius, LOGO.stroke * 1.6, 24, 220), planetMaterial);
-    ring.rotation.x = LOGO.ringTilt;
-    ringWrap.add(ring);
-    hy.add(planet, ringWrap);
-    [planet, ring].forEach((m) => (m.frustumCulled = false));
-    scene.add(light, hy);
+    const makeLens = (tex: THREE.Texture, mode: number) =>
+      new THREE.ShaderMaterial({
+        uniforms: {
+          uTexture: { value: tex },
+          uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+          uAspect: { value: 1 },
+          uTime: { value: 0 },
+          uRadius: { value: 0 },
+          uMode: { value: mode },
+          uRim: { value: new THREE.Color("#4289d8") },
+        },
+        vertexShader: LENS_VERT,
+        fragmentShader: LENS_FRAG,
+        blending: THREE.NoBlending,
+        depthTest: false,
+        depthWrite: false,
+      });
+    // 흰 첫 화면: 글자를 같은 자리에 그린 캔버스를 렌즈 안에서만 휜다
+    const textCanvas = document.createElement("canvas");
+    const tctx = textCanvas.getContext("2d")!;
+    const textTexture = new THREE.CanvasTexture(textCanvas);
+    const overlayMaterial = makeLens(textTexture, 0);
+    const overlayMesh = new THREE.Mesh(quad(), overlayMaterial);
+    overlayMesh.frustumCulled = false;
+    const overlayScene = new THREE.Scene();
+    overlayScene.add(overlayMesh);
+    let textDrawnAt = 0;
 
     // 모바일에서는 주소창이 접히고 펴질 때마다 innerHeight가 바뀐다.
     // 무대(100svh) 높이를 기준으로 삼아 스크롤 중에 섹션 길이가 바뀌지 않게 한다.
@@ -261,28 +307,104 @@ export function HyperScene() {
       if (relayout) requestAnimationFrame(() => ScrollTrigger.refresh());
       // 두 번째 페이지가 마지막 한 화면과 겹치도록
       if (problemWrap) problemWrap.style.marginTop = `${-H}px`;
-      if (renderer) {
-        renderer.setPixelRatio(pr);
-        renderer.setSize(W, H, false);
+      for (const r of [renderer, lensRenderer]) {
+        if (!r) continue;
+        r.setPixelRatio(pr);
+        r.setSize(W, H, false);
       }
-      camera.aspect = W / H;
-      camera.updateProjectionMatrix();
       lightMaterial.uniforms.iRes.value.set(W * pr, H * pr, 1);
       lightMaterial.uniforms.uCenter.value.set((W * pr) / 2, (H * pr) / 2);
+      textCanvas.width = Math.max(2, Math.floor(W * pr));
+      textCanvas.height = Math.max(2, Math.floor(H * pr));
+      textDrawnAt = 0;
     };
+
+    /* 첫 화면 글자를 캔버스에 같은 자리로 그린다 (렌즈가 휠 대상) */
+    const stageA = stick.querySelector<HTMLElement>(".hy-seg0a")!;
+    const range = document.createRange();
+    const ascentCache = new Map<string, number>();
+    const opacityUpTo = (el: Element | null) => {
+      let a = 1;
+      for (let e = el; e && e !== stick; e = e.parentElement) a *= Number(getComputedStyle(e).opacity) || 0;
+      return a;
+    };
+    const drawText = () => {
+      const sr = stick.getBoundingClientRect();
+      tctx.setTransform(pr, 0, 0, pr, 0, 0);
+      // 바탕: 페이지 색 위에 흰 카드 (첫 화면의 카드 틀과 같은 여백)
+      tctx.globalAlpha = 1;
+      tctx.fillStyle = "#f6f8ff";
+      tctx.fillRect(0, 0, W, H);
+      const top = clamp(H * 0.1, 65.6, 96);
+      const side = clamp(W * 0.042, 12, 64);
+      tctx.fillStyle = "#ffffff";
+      tctx.beginPath();
+      tctx.roundRect(side, top, W - side * 2, H - top - 32, 32);
+      tctx.fill();
+      // 서비스 칩
+      stageA.querySelectorAll("li").forEach((li) => {
+        const r = li.getBoundingClientRect();
+        const cs = getComputedStyle(li);
+        tctx.globalAlpha = opacityUpTo(li);
+        tctx.beginPath();
+        tctx.roundRect(r.left - sr.left + 0.5, r.top - sr.top + 0.5, r.width - 1, r.height - 1, r.height / 2);
+        tctx.fillStyle = cs.backgroundColor;
+        tctx.fill();
+        tctx.strokeStyle = cs.borderTopColor;
+        tctx.lineWidth = 1;
+        tctx.stroke();
+      });
+      // 글자: 한 글자씩 실제 화면 위치에
+      const walker = document.createTreeWalker(stageA, NodeFilter.SHOW_TEXT);
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const text = n.textContent ?? "";
+        const parent = n.parentElement;
+        if (!parent || !text.trim() || parent.closest(".sr-only")) continue;
+        const alpha = opacityUpTo(parent);
+        if (alpha < 0.02) continue;
+        const cs = getComputedStyle(parent);
+        const font = `${cs.fontStyle} ${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+        tctx.font = font;
+        (tctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
+        let ascent = ascentCache.get(font);
+        if (ascent === undefined) {
+          const m = tctx.measureText("가Hg");
+          ascent = m.fontBoundingBoxAscent || parseFloat(cs.fontSize) * 0.9;
+          ascentCache.set(font, ascent);
+        }
+        tctx.globalAlpha = alpha;
+        tctx.fillStyle = cs.color;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (ch.trim() === "") continue;
+          range.setStart(n, i);
+          range.setEnd(n, i + 1);
+          const r = range.getBoundingClientRect();
+          if (!r.width) continue;
+          tctx.fillText(ch, r.left - sr.left, r.top - sr.top + ascent);
+        }
+      }
+      tctx.globalAlpha = 1;
+      textTexture.needsUpdate = true;
+    };
+
     resize();
     // 겹침 여백이 바뀌었으니 뒤 장면들의 고정 위치를 다시 계산
     requestAnimationFrame(() => ScrollTrigger.refresh());
     window.addEventListener("resize", resize);
 
-    const pointer = { nx: 0, ny: 0, inside: false };
+    // 렌즈는 마우스가 있는 기기에서만
+    const canHover = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    const pointer = { x: 0, y: 0, inside: false };
     const onPointer = (e: PointerEvent) => {
       if (e.pointerType && e.pointerType !== "mouse") return;
-      pointer.nx = (e.clientX / window.innerWidth) * 2 - 1;
-      pointer.ny = -((e.clientY / window.innerHeight) * 2 - 1);
+      pointer.x = e.clientX;
+      pointer.y = e.clientY;
       pointer.inside = true;
     };
+    const onLeave = () => (pointer.inside = false);
     window.addEventListener("pointermove", onPointer, { passive: true });
+    document.documentElement.addEventListener("mouseleave", onLeave);
 
     /* ---------- 스크롤 구간에 맞춰 제목과 그래픽을 전환 ---------- */
     const bigLines = { A: hero.lines, B: hyper.stage1.lines, D: hyper.stage2.lines };
@@ -298,6 +420,7 @@ export function HyperScene() {
       if (!inside) {
         stages.forEach((s) => s.classList.remove("on"));
         says.forEach((s) => s.classList.remove("play"));
+        accentStart.fill(-1);
         curStage = -1;
         revealed = false;
         return;
@@ -307,7 +430,10 @@ export function HyperScene() {
         const changed = st !== curStage;
         curStage = st;
         stages.forEach((s, k) => s.classList.toggle("on", k === st));
-        says.forEach((s) => s.classList.toggle("play", st === 2));
+        if (st !== 2) {
+          says.forEach((s) => s.classList.remove("play"));
+          accentStart.fill(-1);
+        }
         if (st === 0 || st === 1) {
           const host = st === 0 ? bigA : bigB;
           if (play) fillBig(host, st === 0 ? bigLines.A : bigLines.B);
@@ -315,17 +441,28 @@ export function HyperScene() {
         } else if (st === 3 && changed) fillBig(bigD, bigLines.D);
         revealed = play;
       }
-      if (st === 2) ringsDraw(ringEls, clamp((i - 2.4 * vh) / (1.6 * vh), 0, 1));
+      if (st === 2) {
+        // 고리 구간(2.4~4화면) 안에서 문구 네 개가 차례로 켜진다
+        const p = clamp((i - 2.4 * vh) / (1.6 * vh), 0, 1);
+        says.forEach((el, k) => {
+          const on = p >= 0.04 + k * 0.22;
+          if (on !== el.classList.contains("play")) {
+            el.classList.toggle("play", on);
+            accentStart[k] = on ? performance.now() : -1;
+          }
+        });
+        signalDraw(signal, p, performance.now() / 1000, accentStart, performance.now(), motionOn);
+      }
     };
 
-    /* ---------- 프레임 (원본 frame의 하이퍼스페이스 부분) ---------- */
-    const camOff = new THREE.Vector2();
-    const camTar = new THREE.Vector2();
-    let hyScale = 0;
-    let hyInit = false;
-    let drawn = false;
+    /* ---------- 프레임 ---------- */
+    let mainDrawn = false;
+    let lensDrawn = false;
     let lastNight = -1;
-    let revealR = 0; // 남색(검정) 원의 반지름(px). 빛줄기는 이 원 안에만
+    let revealR = 0; // 검은 원의 반지름(px). 빛줄기는 이 원 안에만
+    const origin = { x: 0, y: 0 }; // 검은 원이 퍼지는 점: 반전이 시작될 때의 렌즈 위치에서 고정
+    const lensUV = new THREE.Vector2(0.5, 0.5);
+    let lensVis = 0;
     let lastCurtain = -1;
     let wasDark = false;
     let last = performance.now();
@@ -341,48 +478,50 @@ export function HyperScene() {
       const u = -hyTop / vh; // 섹션 안에서 내려온 화면 수
       // 첫 0.4화면은 그대로 두고, 0.4~0.9화면에서 한 번에 뒤집는다 (반쯤 남은 중간 상태를 만들지 않는다)
       const flip = motionOn ? smooth((u - 0.4) / 0.5) : Number(u > 0.6);
-      // 행성 재등장: 4.6~5.4화면에 가운데서 0 → 원래 크기
-      const exit = smooth((u - 4.6) / 0.8);
-      // 통과: 5.4~6.4화면에 행성이 점점 빨라지며 커지고, 오른쪽 아래 화면 밖으로 완전히 빠져나간다
-      const fly = Math.pow(clamp((u - 5.4) / 1.0, 0, 1), 2);
-      // 행성이 빠지는 동안(5.9~6.25화면) 마지막 문구가 사라진다
+      // 5.9~6.25화면: 마지막 문구가 사라진다
       const textFade = motionOn ? smooth((u - 5.9) / 0.35) : Number(u > 6.1);
       // 6.3~6.75화면: 검은 공간이 페이지의 밝은 톤으로 바뀐다. 중간의 회색 구간은 짧게 지나가도록 가운데를 가파르게
       const wash = motionOn ? smooth(smooth((u - 6.3) / 0.45)) : Number(u > 6.6);
       // 6.9~7.2화면: 무대가 사라지며 같은 톤 아래의 두 번째 페이지가 제자리에서 드러난다
       const leave = motionOn ? smooth((u - 6.9) / 0.3) : Number(u > 7);
+      const onScreen = rect.bottom > 0 && hyTop < vh;
 
-      // 행성의 화면 위치(쉬는 자리). 남색 원은 이 점에서 퍼진다
-      const desktop = W >= 768;
-      const restX = desktop ? 0.285 : 0.18; // 화면 폭 대비
-      const restY = desktop ? 0 : -0.24; // 화면 높이 대비(위가 +)
-      const cxPx = W * (0.5 + restX);
-      const cyPx = vh * (0.5 - restY);
-      const diameter = desktop ? clamp(W * 0.14, 138, 220) : Math.min(96, vh * 0.15);
+      // 렌즈: 마우스를 부드럽게 따라간다 (원본의 lerp 0.08)
+      const sr = stick.getBoundingClientRect();
+      const want = canHover && motionOn && pointer.inside && onScreen ? 1 : 0;
+      lensVis = damp(lensVis, want, 6, dt);
+      if (pointer.inside) {
+        lensUV.x += ((pointer.x - sr.left) / W - lensUV.x) * 0.08;
+        lensUV.y += (1 - (pointer.y - sr.top) / H - lensUV.y) * 0.08;
+      }
+
+      // 검은 원이 퍼지는 점: 반전 전에는 렌즈 위치(렌즈가 없으면 오른쪽 자리), 반전이 시작되면 고정
+      if (flip <= 0) {
+        const desktop = W >= 768;
+        if (lensVis > 0.5) {
+          origin.x = lensUV.x * W;
+          origin.y = (1 - lensUV.y) * vh;
+        } else {
+          origin.x = W * (desktop ? 0.785 : 0.68);
+          origin.y = vh * (desktop ? 0.5 : 0.74);
+        }
+      }
       const farthest = Math.max(
-        Math.hypot(cxPx, cyPx),
-        Math.hypot(W - cxPx, cyPx),
-        Math.hypot(cxPx, vh - cyPx),
-        Math.hypot(W - cxPx, vh - cyPx)
+        Math.hypot(origin.x, origin.y),
+        Math.hypot(W - origin.x, origin.y),
+        Math.hypot(origin.x, vh - origin.y),
+        Math.hypot(W - origin.x, vh - origin.y)
       );
-
       if (flip !== lastNight) {
         lastNight = flip;
         // 카드 틀이 열리는 것도 같은 순간에
         backdrop.style.setProperty("--open-frame", String(1 - flip));
-        // 남색은 투명도로 서서히가 아니라, 행성 중심에서 원으로 퍼진다
-        const r = flip <= 0 ? 0 : lerp(diameter * 0.5, farthest + 8, flip);
-        revealR = r;
-        backdrop.style.setProperty("--reveal-r", `${r}px`);
-        backdrop.style.setProperty("--reveal-x", `${cxPx}px`);
-        backdrop.style.setProperty("--reveal-y", `${cyPx}px`);
+        // 검은색은 투명도로 서서히가 아니라 한 점에서 원으로 퍼진다
+        revealR = flip <= 0 ? 0 : lerp(0, farthest + 8, flip);
+        backdrop.style.setProperty("--reveal-r", `${revealR}px`);
+        backdrop.style.setProperty("--reveal-x", `${origin.x}px`);
+        backdrop.style.setProperty("--reveal-y", `${origin.y}px`);
       }
-      // 행성 크기 (반전 때는 원 속으로 작아지고, 마지막에는 가운데서 다시 커져 지나간다)
-      const planetFactor = exit > 0 ? exit * lerp(1, 7, fly) : 1 - flip;
-      if (!hyInit || !motionOn) {
-        hyScale = planetFactor;
-        hyInit = true;
-      } else hyScale = damp(hyScale, planetFactor, 32, dt);
 
       // 톤 전환과 무대 퇴장
       if (wash !== lastCurtain) {
@@ -408,45 +547,46 @@ export function HyperScene() {
         window.dispatchEvent(new CustomEvent("hyper-dark", { detail: dark }));
       }
 
-      const onScreen = rect.bottom > 0 && hyTop < vh;
-      if (renderer && onScreen && !covered) {
-        if (motionOn && pointer.inside && !isMobile()) camTar.set(pointer.nx * 0.9, pointer.ny * 0.55);
-        else camTar.set(0, 0);
-        camOff.lerp(camTar, motionOn ? 0.06 : 1);
-        camera.position.set(camOff.x, camOff.y, CAMZ);
-        camera.lookAt(0, 0, 0);
-        uLight.value.set(pointer.nx * 10, pointer.ny * 8 + 4, 0.5);
+      const t = now / 1000;
+      const aspect = W / vh;
 
-        const zH = -3;
-        const wH = worldH(zH);
-        const wW = worldW(zH);
-        const rest = (diameter * wH) / vh / 2;
-        hy.scale.setScalar(Math.max(rest * hyScale, 1e-4));
-        hy.visible = hyScale > 0.01;
-        // 마지막에는 가운데서 커지며 오른쪽 아래로 화면 밖까지 지나간다 (고리까지 완전히 빠지도록 멀리)
-        // 모바일은 화면이 좁아 옆으로 가면 바로 사라지므로, 주로 아래로 빠진다
-        if (exit > 0) hy.position.set(fly * (desktop ? 2.4 : 0.7) * wW, -fly * (desktop ? 1.2 : 1.35) * wH, zH);
-        else hy.position.set(restX * wW, restY * wH, zH);
-        hy.rotation.set(0, (flip + exit + fly) * rad(180), 0);
-        planetMaterial.uniforms.uOpacity.value = 1;
-
-        // 빛줄기는 남색 위에서만
-        // 행성이 빠져나가면 줄기가 다시 살아나 '통과한 공간'을 보여 주고, 밝은 톤으로 바뀌며 사라진다
-        const lightOpacity = smooth((flip - 0.5) / 0.5) * (1 - (exit - fly) * 0.7) * (1 - wash);
-        light.visible = lightOpacity > 0;
+      // 1) 글자 아래: 검은 구간의 빛줄기 (렌즈는 반전과 함께 사라지므로 여기에는 없다)
+      // 신호 파동 구간(2.4~4화면)에는 빛줄기를 낮춰 파동이 주인공이 되게
+      const waveStage = smooth((u - 2.25) / 0.3) * (1 - smooth((u - 3.85) / 0.3));
+      const lightOpacity = smooth((flip - 0.5) / 0.5) * (1 - wash) * (1 - waveStage * 0.6);
+      if (renderer && onScreen && !covered && lightOpacity > 0) {
         lightMaterial.uniforms.uOpacity.value = lightOpacity;
-        lightMaterial.uniforms.uDark.value = 1;
         // 원이 화면을 다 덮기 전에는 흰 면 위로 줄기가 새지 않게 원 안으로 자른다
-        lightMaterial.uniforms.uClip.value.set(cxPx * pr, (H - cyPx) * pr, revealR >= farthest ? -1 : revealR * pr);
+        lightMaterial.uniforms.uClip.value.set(origin.x * pr, (vh - origin.y) * pr, revealR >= farthest ? -1 : revealR * pr);
         lightMaterial.uniforms.iTime.value = 2 * clamp((vh - hyTop) / (rect.height + vh), 0, 1);
-
         renderer.setClearColor(0x000000, 0);
         renderer.clear();
-        renderer.render(scene, camera);
-        drawn = true;
-      } else if (drawn && renderer) {
+        renderer.render(bgScene, camera);
+        mainDrawn = true;
+      } else if (mainDrawn && renderer) {
         renderer.clear();
-        drawn = false;
+        mainDrawn = false;
+      }
+
+      // 2) 글자 위: 흰 첫 화면에서만 렌즈 안쪽 글자를 휘어 덮는다. 스크롤로 반전이 시작되면 렌즈가 오므라들며 사라진다
+      const overlayR = LENS_RADIUS * lensVis * (1 - smooth(flip / 0.25));
+      if (lensRenderer && onScreen && overlayR > 0.002 && u < 1) {
+        if (now - textDrawnAt > 90) {
+          textDrawnAt = now;
+          drawText();
+        }
+        const ou = overlayMaterial.uniforms;
+        ou.uMouse.value.copy(lensUV);
+        ou.uAspect.value = aspect;
+        ou.uTime.value = t;
+        ou.uRadius.value = overlayR;
+        lensRenderer.setClearColor(0x000000, 0);
+        lensRenderer.clear();
+        lensRenderer.render(overlayScene, camera);
+        lensDrawn = true;
+      } else if (lensDrawn && lensRenderer) {
+        lensRenderer.clear();
+        lensDrawn = false;
       }
       updateHyper(rect, vh);
     };
@@ -465,12 +605,13 @@ export function HyperScene() {
       window.dispatchEvent(new CustomEvent("hyper-dark", { detail: false }));
       window.removeEventListener("resize", resize);
       window.removeEventListener("pointermove", onPointer);
-      planet.geometry.dispose();
-      ring.geometry.dispose();
-      light.geometry.dispose();
-      planetMaterial.dispose();
+      document.documentElement.removeEventListener("mouseleave", onLeave);
+      [light, overlayMesh].forEach((m) => m.geometry.dispose());
       lightMaterial.dispose();
+      overlayMaterial.dispose();
+      textTexture.dispose();
       renderer?.dispose();
+      lensRenderer?.dispose();
       ringEls.forEach((el) => el.remove());
     };
   }, []);
@@ -515,13 +656,8 @@ export function HyperScene() {
         </div>
         <div className="hy-stage hy-seg1">
           <div className="hy-rings">
-            <svg viewBox="0 0 344 344">
-              <defs>
-                <clipPath id="hy-rc">
-                  <polygon points="20,22 324,22 324,322 20,322" />
-                </clipPath>
-              </defs>
-              <g clipPath="url(#hy-rc)" data-ring-g />
+            <svg viewBox="-500 -200 1000 400">
+              <g data-ring-g />
             </svg>
           </div>
           {hyper.says.map((s, i) => (
@@ -532,7 +668,9 @@ export function HyperScene() {
           <div className="hy-big" data-big="D" />
           <p className="hy-caption">{hyper.stage2.ko}</p>
         </div>
-        {/* 행성이 빠진 뒤 무대 전체를 페이지의 밝은 톤으로 바꾸는 층 */}
+        {/* 흰 첫 화면의 렌즈: 글자 위에 겹쳐 렌즈 안쪽만 휜 글자를 보여 준다 */}
+        <canvas ref={lensCanvasRef} className="hy-lens" />
+        {/* 마지막 문구가 사라진 뒤 무대 전체를 페이지의 밝은 톤으로 바꾸는 층 */}
         <div ref={washRef} className="hy-wash" />
       </div>
     </section>
